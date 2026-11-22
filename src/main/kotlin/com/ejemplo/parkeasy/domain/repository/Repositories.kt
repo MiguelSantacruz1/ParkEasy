@@ -58,6 +58,12 @@ interface ParkingRecordRepository {
     fun relocate(id: Long, spotId: Long, spotLabel: String, floorName: String)
 }
 
+interface SettingRepository {
+    fun get(key: String): String?
+    fun set(key: String, value: String)
+    fun remove(key: String)
+}
+
 /** Fila de un elemento del plano que no es un puesto: [data] es su JSON versionado. */
 data class PlanElementRow(val id: String, val type: String, val data: String, val zOrder: Int)
 
