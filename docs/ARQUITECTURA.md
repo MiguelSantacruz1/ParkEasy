@@ -74,6 +74,14 @@ presentation/plan   PlanViewModel, PlanRenderer, PlanCanvas, EditorScreen, HomeS
 - Guardar un plano es una sola transacción: borra los puestos quitados (no los ocupados), reactiva los que vuelven por «deshacer», crea los nuevos y reemplaza los elementos del piso.
 - El estado de cada puesto en el plano operativo sale de `Spot` + registros abiertos, igual que en la lista.
 
+## Historial, copias y ajustes (Etapas 7 y 8)
+
+- `domain/rules/HistoryFilter` y `CsvExport`: filtros del historial y exportación a CSV con punto y coma, BOM y protección contra fórmulas.
+- `data/backup/BackupService`: copia con `VACUUM INTO` y restauración dentro de una transacción (`ATTACH` de la copia, borrar y reinsertar tabla por tabla). Antes de restaurar guarda lo actual en la carpeta `copias` y migra copias de versiones anteriores.
+- `domain/service/AppSettings`: tema, nombre, primer uso y PIN con sal y SHA-256. Se guarda en la tabla `Setting`.
+- `presentation/AppRoot`: aplica el tema y decide entre pantalla de PIN, asistente de primer uso y la app.
+- `presentation/plan/PlanExporter`: dibuja el plano fuera de pantalla con el mismo `drawPlan` y lo guarda como PNG o como PDF de una página (la imagen va dentro del PDF).
+
 ## Esquema de la base (versión 3)
 
 | Tabla | Contenido |
