@@ -21,7 +21,12 @@ import com.ejemplo.parkeasy.domain.service.FloorService
 import com.ejemplo.parkeasy.domain.service.ParkingService
 import com.ejemplo.parkeasy.domain.service.SpotService
 import com.ejemplo.parkeasy.domain.service.TariffService
+import com.ejemplo.parkeasy.presentation.common.MessageCenter
+import com.ejemplo.parkeasy.presentation.floors.FloorsViewModel
 import com.ejemplo.parkeasy.presentation.navigation.Navigator
+import com.ejemplo.parkeasy.presentation.records.RecordsViewModel
+import com.ejemplo.parkeasy.presentation.settings.SettingsViewModel
+import com.ejemplo.parkeasy.presentation.spots.SpotsViewModel
 import org.koin.dsl.module
 import java.time.Clock
 import java.time.ZoneId
@@ -29,6 +34,11 @@ import java.time.ZoneId
 /** Módulo de Koin de la capa de presentación. */
 val presentationModule = module {
     single { Navigator() }
+    single { MessageCenter() }
+    single { FloorsViewModel(get(), get(), get(), get()) }
+    single { SpotsViewModel(get(), get(), get(), get(), get()) }
+    single { RecordsViewModel(get(), get(), get(), get(), get()) }
+    single { SettingsViewModel(get(), get(), get()) }
 }
 
 /** Módulo de Koin de la capa de datos: abre la base SQLite en la carpeta del usuario. */
