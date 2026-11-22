@@ -62,3 +62,11 @@ compose.desktop {
         }
     }
 }
+
+// Perfiles de datos de prueba: gradlew run -Pdemo  |  gradlew run -Pperf
+tasks.withType<JavaExec>().configureEach {
+    when {
+        project.hasProperty("perf") -> systemProperty("parkeasy.profile", "perf")
+        project.hasProperty("demo") -> systemProperty("parkeasy.profile", "demo")
+    }
+}
