@@ -41,6 +41,6 @@ Se ignoran mientras hay un diálogo abierto. Guardar no tiene atajo porque el pl
 
 ## Accesibilidad
 
-- El estado de un puesto no depende solo del color: cada puesto muestra su etiqueta y el estado también aparece en el texto del detalle y de las listas.
+- El estado de un puesto no depende solo del color: en el plano cada puesto lleva un símbolo (○ libre, ● ocupado, ⊘ bloqueado) y la leyenda los nombra.
 - Todo se puede operar con el teclado menos dibujar y arrastrar en el plano, que necesita ratón.
 - Compatibilidad con lectores de pantalla: **no verificada**. El plano se dibuja en un canvas, que no expone sus elementos a esas herramientas.
