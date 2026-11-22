@@ -1,0 +1,17 @@
+-- Ajustes simples de la instalación (clave y valor).
+CREATE TABLE Setting (
+    key TEXT NOT NULL PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
+selectByKey:
+SELECT value FROM Setting WHERE key = ?;
+
+selectAll:
+SELECT key, value FROM Setting;
+
+upsert:
+INSERT OR REPLACE INTO Setting(key, value) VALUES (?, ?);
+
+deleteByKey:
+DELETE FROM Setting WHERE key = ?;
