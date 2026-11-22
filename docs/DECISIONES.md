@@ -68,6 +68,22 @@ Las tarifas de carro (4.000 + 1.500) y moto (2.500 + 1.000) se insertan con `INS
 
 El plano necesita un modelo de geometría que todavía no existe. Se agrega con su propia migración (`2.sqm`) en la Etapa 5, lo que además ejercita el mecanismo de migraciones con datos reales.
 
+## D17. Textos de pantalla en el código, por ahora
+
+El documento pide los textos en recursos. Las pantallas nuevas (pisos, puestos, registros, ajustes) tienen sus textos en español directamente en el código para avanzar más rápido. Solo la navegación usa recursos. En la etapa de pulido se pasan todos a `strings.xml`. Es una deuda conocida.
+
+## D18. Estados de pantalla propios
+
+Los estados (`FloorsViewModel`, `SpotsViewModel`, `RecordsViewModel`, `SettingsViewModel`) son clases con `StateFlow` y un alcance de corrutinas propio, registradas como singletons en Koin. No usan la librería de ViewModel multiplataforma: la app tiene una sola ventana y estas clases viven mientras la app esté abierta. Los diálogos de entrada, salida, corrección y traslado viven en `RecordsViewModel` para poder abrirlos desde cualquier pantalla.
+
+## D19. Etapas 3 y 4 juntas
+
+Por pedido del dueño se juntaron las etapas 3 y 4 y se pasó a trabajar por bloques: 3+4, 5+6, 7+8, 9+10. El reporte y la confirmación se hacen al final de cada bloque.
+
+## D20. Compilación sin incremental
+
+En esta máquina Windows el compilador incremental de Kotlin falla de vez en cuando por archivos que desaparecen o quedan bloqueados en `build/`. `gradle.properties` compila dentro de Gradle y sin modo incremental. Es un poco más lento, pero estable.
+
 ## D16. Booleanos como INTEGER
 
 `INTEGER AS Boolean` no compila con SQLDelight 2.4.1 en este proyecto (genera un import inexistente). Las columnas son `INTEGER` 0 o 1 y los repositorios convierten.
