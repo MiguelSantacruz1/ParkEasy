@@ -56,5 +56,11 @@ WHERE id = ?;
 relocate:
 UPDATE ParkingRecord SET spotId = ?, spotLabel = ?, floorName = ? WHERE id = ?;
 
+countClosedBefore:
+SELECT COUNT(*) FROM ParkingRecord WHERE exitTime IS NOT NULL AND exitTime < ?;
+
+deleteClosedBefore:
+DELETE FROM ParkingRecord WHERE exitTime IS NOT NULL AND exitTime < ?;
+
 lastInsertId:
 SELECT last_insert_rowid();

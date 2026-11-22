@@ -58,6 +58,15 @@ class SqlParkingRecordRepository(
         )
     }
 
+    override fun countClosedBefore(cutoff: Instant): Int =
+        queries.countClosedBefore(cutoff.toEpochMilli()).executeAsOne().toInt()
+
+    override fun deleteClosedBefore(cutoff: Instant): Int {
+        val count = countClosedBefore(cutoff)
+        queries.deleteClosedBefore(cutoff.toEpochMilli())
+        return count
+    }
+
     override fun relocate(id: Long, spotId: Long, spotLabel: String, floorName: String) {
         queries.relocate(spotId, spotLabel, floorName, id)
     }

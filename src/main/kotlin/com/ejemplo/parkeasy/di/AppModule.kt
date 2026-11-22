@@ -12,6 +12,7 @@ import com.ejemplo.parkeasy.data.repository.SqlPlanElementRepository
 import com.ejemplo.parkeasy.data.repository.SqlSettingRepository
 import com.ejemplo.parkeasy.domain.repository.SettingRepository
 import com.ejemplo.parkeasy.domain.service.AppSettings
+import com.ejemplo.parkeasy.domain.service.RetentionService
 import com.ejemplo.parkeasy.plan.PlanPersistence
 import com.ejemplo.parkeasy.domain.repository.PlanElementRepository
 import com.ejemplo.parkeasy.data.repository.SqlSpotRepository
@@ -47,7 +48,7 @@ val presentationModule = module {
     single { FloorsViewModel(get(), get(), get(), get()) }
     single { SpotsViewModel(get(), get(), get(), get(), get()) }
     single { RecordsViewModel(get(), get(), get(), get(), get()) }
-    single { SettingsViewModel(get(), get(), get(), get(), get(), get()) }
+    single { SettingsViewModel(get(), get(), get(), get(), get(), get(), get()) }
     single { PlanViewModel(get(), get(), get(), get(), get()) }
     single { HistoryViewModel(get(), get(), get(), get()) }
 }
@@ -81,6 +82,7 @@ val domainModule = module {
     single { TariffService(get(), get(), get()) }
     single { PlanPersistence(get(), get(), get(), get(), get()) }
     single { AppSettings(get()) }
+    single { RetentionService(get(), get(), get(), get()) }
 }
 
 val appModules = listOf(presentationModule, dataModule, repositoryModule, domainModule)

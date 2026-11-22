@@ -56,6 +56,12 @@ interface ParkingRecordRepository {
 
     /** Cambia el registro de puesto, conservando la hora de llegada. */
     fun relocate(id: Long, spotId: Long, spotLabel: String, floorName: String)
+
+    /** Cuántos registros cerrados salieron antes de [cutoff]. */
+    fun countClosedBefore(cutoff: java.time.Instant): Int
+
+    /** Borra de verdad los registros cerrados que salieron antes de [cutoff]. Devuelve cuántos. */
+    fun deleteClosedBefore(cutoff: java.time.Instant): Int
 }
 
 interface SettingRepository {
