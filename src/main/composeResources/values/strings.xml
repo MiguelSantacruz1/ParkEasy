@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PARKEASY</string>
+
+    <!-- Navegación -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_editor">Editor del plano</string>
+    <string name="nav_spots">Puestos</string>
+    <string name="nav_records">Registros</string>
+    <string name="nav_history">Historial</string>
+    <string name="nav_floors">Pisos</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- Estados genéricos -->
+    <string name="state_loading">Cargando…</string>
+    <string name="state_empty">Todavía no hay información para mostrar</string>
+    <string name="state_error">Ocurrió un error</string>
+    <string name="screen_coming_soon">Esta sección se habilita en una etapa próxima</string>
+</resources>

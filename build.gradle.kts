@@ -16,6 +16,7 @@ kotlin {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
+    implementation(compose.components.resources)
     implementation(libs.kotlinx.coroutines.swing)
 
     testImplementation(kotlin("test"))
@@ -23,6 +24,11 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+compose.resources {
+    packageOfResClass = "com.ejemplo.parkeasy.resources"
+    generateResClass = always
 }
 
 compose.desktop {
