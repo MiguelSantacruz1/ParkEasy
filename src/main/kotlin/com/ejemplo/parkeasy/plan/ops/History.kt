@@ -32,6 +32,14 @@ class History<T>(private val limit: Int = 100) {
         return next
     }
 
+    /** Aplica [transform] a todos los estados guardados (por ejemplo, para poner ids ya asignados). */
+    fun mapAll(transform: (T) -> T) {
+        val p = past.map(transform)
+        val f = future.map(transform)
+        past.clear(); past.addAll(p)
+        future.clear(); future.addAll(f)
+    }
+
     fun clear() {
         past.clear()
         future.clear()
