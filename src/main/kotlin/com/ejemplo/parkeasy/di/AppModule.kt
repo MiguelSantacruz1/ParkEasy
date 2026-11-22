@@ -27,6 +27,7 @@ import com.ejemplo.parkeasy.domain.service.TariffService
 import com.ejemplo.parkeasy.presentation.common.MessageCenter
 import com.ejemplo.parkeasy.presentation.floors.FloorsViewModel
 import com.ejemplo.parkeasy.presentation.navigation.Navigator
+import com.ejemplo.parkeasy.presentation.plan.PlanViewModel
 import com.ejemplo.parkeasy.presentation.records.RecordsViewModel
 import com.ejemplo.parkeasy.presentation.settings.SettingsViewModel
 import com.ejemplo.parkeasy.presentation.spots.SpotsViewModel
@@ -42,6 +43,7 @@ val presentationModule = module {
     single { SpotsViewModel(get(), get(), get(), get(), get()) }
     single { RecordsViewModel(get(), get(), get(), get(), get()) }
     single { SettingsViewModel(get(), get(), get()) }
+    single { PlanViewModel(get(), get(), get(), get(), get()) }
 }
 
 /** Módulo de Koin de la capa de datos: abre la base SQLite en la carpeta del usuario. */
