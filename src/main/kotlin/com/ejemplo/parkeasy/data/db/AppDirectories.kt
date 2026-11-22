@@ -24,9 +24,12 @@ object AppDirectories {
         return Paths.get(base, APP_FOLDER)
     }
 
-    /** Ruta del archivo de la base de datos. Crea la carpeta si no existe. */
-    fun databaseFile(directory: Path = dataDirectory()): Path {
+    /** Con la propiedad parkeasy.dataDir la carpeta de datos se cambia (mediciones y pruebas). */
+    fun effectiveDirectory(): Path = System.getProperty("parkeasy.dataDir")?.takeIf { it.isNotBlank() }?.let(Paths::get) ?: dataDirectory()
+
+    /** Ruta del archivo de la base de datos del perfil. Crea la carpeta si no existe. */
+    fun databaseFile(directory: Path = effectiveDirectory(), profile: AppProfile = AppProfile.current()): Path {
         Files.createDirectories(directory)
-        return directory.resolve("parkeasy.db")
+        return directory.resolve(profile.databaseName)
     }
 }

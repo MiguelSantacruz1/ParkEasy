@@ -28,7 +28,7 @@ class SettingsViewModel(
     private val messages: MessageCenter,
 ) : BaseViewModel(messages) {
 
-    val databasePath: String = AppDirectories.dataDirectory().resolve("parkeasy.db").toString()
+    val databasePath: String = AppDirectories.effectiveDirectory().resolve(com.ejemplo.parkeasy.data.db.AppProfile.current().databaseName).toString()
 
     val theme: StateFlow<ThemeMode> = appSettings.theme
 
