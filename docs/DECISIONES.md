@@ -119,3 +119,14 @@ El PIN (4 a 8 dígitos, con sal y SHA-256) impide que alguien use la app abierta
 ## D28. Los textos siguen en el código
 
 Mover todos los textos a `strings.xml` toca casi cada pantalla y sus pruebas, y se dejó para el último bloque para no mezclarlo con funciones nuevas. La deuda D17 sigue abierta.
+## D29. Perfiles de ejecución con base propia
+
+`demo` y `perf` se eligen con la propiedad `parkeasy.profile` (Gradle: `-Pdemo`, `-Pperf`) y abren su propio archivo de base, así que no hay forma de mezclar datos de prueba con los reales. Los datos llevan placas con prefijo `TST` y la marca `TEST_DATA`. El restablecimiento se niega fuera de estos perfiles. La carga va en una sola transacción: sin eso, en disco, 3000 registros tardaban mucho por el fsync de cada uno.
+
+## D30. Atajos globales con foco en la raíz
+
+Los atajos de pantalla (Ctrl+N, Ctrl+F, Ctrl+E, Ctrl+1/2/3, Ctrl+,) se capturan en la raíz del shell con `onPreviewKeyEvent` y se ignoran con un diálogo abierto. No hay atajo de guardar: el plano se guarda solo.
+
+## D31. El runtime del instalador lleva módulos extra
+
+El runtime recortado de jpackage no incluía `java.sql`, y la app empaquetada se cerraba al abrir porque el driver SQLite lo necesita. Se agregan `java.sql`, `java.naming` y `jdk.unsupported` en `nativeDistributions`.
