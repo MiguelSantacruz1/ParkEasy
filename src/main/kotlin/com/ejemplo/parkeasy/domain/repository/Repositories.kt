@@ -58,6 +58,16 @@ interface ParkingRecordRepository {
     fun relocate(id: Long, spotId: Long, spotLabel: String, floorName: String)
 }
 
+/** Fila de un elemento del plano que no es un puesto: [data] es su JSON versionado. */
+data class PlanElementRow(val id: String, val type: String, val data: String, val zOrder: Int)
+
+interface PlanElementRepository {
+    fun getByFloor(floorId: Long): List<String>
+
+    /** Reemplaza todos los elementos del piso por [rows], dentro de una transacción. */
+    fun replaceForFloor(floorId: Long, rows: List<PlanElementRow>)
+}
+
 interface ChangeLogRepository {
     fun append(entry: NewChangeLogEntry): Long
     fun getRecent(limit: Int): List<ChangeLogEntry>
