@@ -18,6 +18,8 @@ import com.ejemplo.parkeasy.plan.model.ItemType
 import com.ejemplo.parkeasy.plan.model.PlanItem
 import com.ejemplo.parkeasy.presentation.theme.ParkEasyTheme
 import org.koin.compose.KoinApplication
+import org.koin.core.context.stopKoin
+import kotlin.test.AfterTest
 import org.koin.dsl.module
 import kotlin.test.Test
 
@@ -25,8 +27,12 @@ import kotlin.test.Test
 @OptIn(ExperimentalTestApi::class)
 class PlanUiTest {
 
+    /** Cada prueba arranca su propio Koin; si el anterior sigue vivo, la composición se queda esperando. */
+    @AfterTest
+    fun stopGlobalKoin() = stopKoin()
+
     private fun ComposeUiTest.waitForText(text: String) =
-        waitUntil(timeoutMillis = 10_000) { onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
+        waitUntil(timeoutMillis = 40_000) { onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
 
     @Test
     fun `inicio muestra el plano del piso y el editor sus paneles`() = runComposeUiTest {

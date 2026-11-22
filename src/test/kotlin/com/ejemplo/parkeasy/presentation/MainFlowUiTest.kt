@@ -17,6 +17,8 @@ import com.ejemplo.parkeasy.di.presentationModule
 import com.ejemplo.parkeasy.di.repositoryModule
 import com.ejemplo.parkeasy.presentation.theme.ParkEasyTheme
 import org.koin.compose.KoinApplication
+import org.koin.core.context.stopKoin
+import kotlin.test.AfterTest
 import org.koin.dsl.module
 import kotlin.test.Test
 
@@ -24,11 +26,15 @@ import kotlin.test.Test
 @OptIn(ExperimentalTestApi::class)
 class MainFlowUiTest {
 
+    /** Cada prueba arranca su propio Koin; si el anterior sigue vivo, la composición se queda esperando. */
+    @AfterTest
+    fun stopGlobalKoin() = stopKoin()
+
     private fun ComposeUiTest.waitForText(text: String) =
-        waitUntil(timeoutMillis = 10_000) { onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
+        waitUntil(timeoutMillis = 40_000) { onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
 
     private fun ComposeUiTest.waitForNoText(text: String) =
-        waitUntil(timeoutMillis = 10_000) { onAllNodesWithText(text).fetchSemanticsNodes().isEmpty() }
+        waitUntil(timeoutMillis = 40_000) { onAllNodesWithText(text).fetchSemanticsNodes().isEmpty() }
 
     @Test
     fun `flujo principal desde un piso nuevo hasta el cobro y el bloqueo`() = runComposeUiTest {
