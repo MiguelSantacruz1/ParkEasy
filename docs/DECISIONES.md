@@ -87,3 +87,19 @@ En esta máquina Windows el compilador incremental de Kotlin falla de vez en cua
 ## D16. Booleanos como INTEGER
 
 `INTEGER AS Boolean` no compila con SQLDelight 2.4.1 en este proyecto (genera un import inexistente). Las columnas son `INTEGER` 0 o 1 y los repositorios convierten.
+
+## D21. Plano inmutable con historial de estados completos
+
+Cada operación del editor recibe un `PlanDocument` y devuelve otro. Deshacer y rehacer guardan los planos enteros (hasta 100) en vez de comandos inversos. Un plano tiene a lo sumo cientos de elementos, así que copiar la lista es barato, y se evita escribir y probar el inverso de cada operación. Los gestos de arrastre cambian el plano de forma provisional y entran al historial una sola vez al soltar.
+
+## D22. Los puestos siguen en la tabla Spot
+
+El plano no tiene su propia copia de los puestos. `PlanPersistence` convierte entre `Spot` y `PlanItem`, de modo que la lista de Puestos, los registros y el plano operativo siempre ven los mismos datos. Los elementos que no son puestos van a `PlanElement` como JSON con número de versión (`PlanJson`), que rechaza versiones más nuevas que la de la app.
+
+## D23. Autoguardado con retardo y rastreo de versión
+
+Cada cambio programa un guardado a los 400 ms. El estado muestra guardado, pendiente, guardando o error. Si el usuario sigue editando mientras se guarda, el estado vuelve a «pendiente» en vez de «guardado». Los ids que la base asigna a puestos nuevos se copian al plano actual y a todo el historial para que deshacer no cree puestos duplicados.
+
+## D24. Mover un puesto no queda en la bitácora
+
+`SpotService.place` guarda posición, tamaño, giro y techo sin escribir en la bitácora ni exigir que el puesto esté libre. La bitácora registra datos del negocio (crear, renombrar, bloquear, eliminar), no cada arrastre. Un puesto ocupado se puede mover, pero no borrar ni cambiar de tipo.
