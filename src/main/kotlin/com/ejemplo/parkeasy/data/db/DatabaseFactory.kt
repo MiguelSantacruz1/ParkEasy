@@ -2,6 +2,7 @@ package com.ejemplo.parkeasy.data.db
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.ejemplo.parkeasy.domain.model.Tariff
 import java.nio.file.Path
 import java.util.Properties
 
@@ -24,5 +25,14 @@ object DatabaseFactory {
         schema = ParkEasyDatabase.Schema,
     )
 
-    fun create(driver: SqlDriver): ParkEasyDatabase = ParkEasyDatabase(driver)
+    /** Crea el acceso a la base y deja las tarifas iniciales si todavía no existen. */
+    fun create(driver: SqlDriver): ParkEasyDatabase {
+        val db = ParkEasyDatabase(driver)
+        db.transaction {
+            Tariff.defaults.forEach {
+                db.tariffQueries.insertIfAbsent(it.vehicleType.name, it.firstHour, it.extraHour, it.graceMinutes.toLong())
+            }
+        }
+        return db
+    }
 }
