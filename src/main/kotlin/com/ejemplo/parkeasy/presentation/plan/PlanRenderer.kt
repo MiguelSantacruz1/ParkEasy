@@ -221,7 +221,7 @@ private fun DrawScope.drawPathItem(tm: TextMeasurer, item: PlanItem, g: PathGeom
             drawPath(path, Accent.copy(alpha = 0.6f), style = Stroke(1.5f, pathEffect = rounding ?: PathEffect.dashPathEffect(floatArrayOf(10f, 6f))))
         }
         ItemType.ROAD -> {
-            drawPath(path, Color(0xFFB8BCC4), style = Stroke(width, cap = StrokeCap.Round, join = StrokeJoin.Round, pathEffect = rounding))
+            drawPath(path, Color(0xFFB8BCC4), style = Stroke(width, cap = StrokeCap.Butt, join = StrokeJoin.Round, pathEffect = rounding))
             if (width > 10f) drawPath(path, Color.White.copy(alpha = 0.8f), style = Stroke(1.5f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 10f))))
         }
         ItemType.RAMP -> {
