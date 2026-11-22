@@ -69,7 +69,7 @@ val repositoryModule = module {
     single<Transactor> { SqlTransactor(get()) }
     single<PlanElementRepository> { SqlPlanElementRepository(get()) }
     single<SettingRepository> { SqlSettingRepository(get()) }
-    single { BackupService(get(), get(), AppDirectories.dataDirectory().resolve("copias"), get()) }
+    single { BackupService(get(), get(), AppDirectories.effectiveDirectory().resolve("copias"), get()) }
 }
 
 /** Servicios del dominio con las reglas de integridad. */
@@ -83,6 +83,7 @@ val domainModule = module {
     single { PlanPersistence(get(), get(), get(), get(), get()) }
     single { AppSettings(get()) }
     single { RetentionService(get(), get(), get(), get()) }
+    single { com.ejemplo.parkeasy.demo.SampleData(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }
 
 val appModules = listOf(presentationModule, dataModule, repositoryModule, domainModule)

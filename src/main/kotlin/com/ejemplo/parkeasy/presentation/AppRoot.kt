@@ -51,13 +51,61 @@ fun AppRoot(settings: AppSettings = koinInject()) {
     ParkEasyTheme(darkTheme = dark) {
         Surface(Modifier.fillMaxSize()) {
             var unlocked by remember { mutableStateOf(!settings.hasPin) }
+            val profile = remember { com.ejemplo.parkeasy.data.db.AppProfile.current() }
             var onboarded by remember { mutableStateOf(settings.onboardingDone) }
             when {
                 !unlocked -> LockScreen(settings) { unlocked = true }
+                profile.isTestData -> DemoHost(profile)
                 !onboarded -> OnboardingScreen(settings, onDone = { onboarded = true })
                 else -> AppShell()
             }
         }
+    }
+}
+
+/** Perfiles demo y perf: carga los datos de prueba si hace falta y deja un aviso permanente arriba. */
+@Composable
+private fun DemoHost(
+    profile: com.ejemplo.parkeasy.data.db.AppProfile,
+    sample: com.ejemplo.parkeasy.demo.SampleData = koinInject(),
+    plan: com.ejemplo.parkeasy.presentation.plan.PlanViewModel = koinInject(),
+) {
+    var ready by remember { mutableStateOf(false) }
+    var confirmReset by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) { sample.seedIfEmpty(profile) }
+        plan.reload()
+        ready = true
+    }
+    Column(Modifier.fillMaxSize()) {
+        Surface(color = MaterialTheme.colorScheme.tertiaryContainer, contentColor = MaterialTheme.colorScheme.onTertiaryContainer) {
+            Row(
+                Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("DATOS DE DEMOSTRACIÓN (TEST_DATA): nada de esto es real", style = MaterialTheme.typography.labelLarge)
+                OutlinedButton(onClick = { confirmReset = true }, enabled = ready) { Text("Restablecer datos de demostración") }
+            }
+        }
+        Box(Modifier.weight(1f)) { if (ready) AppShell() else Text("Cargando datos de prueba…", Modifier.padding(24.dp)) }
+    }
+    if (confirmReset) {
+        com.ejemplo.parkeasy.presentation.common.ConfirmDialog(
+            title = "Restablecer datos de demostración",
+            text = "Se borran todos los datos de este perfil (pisos, planos, registros y bitácora) y se vuelven a crear los de ejemplo.",
+            confirmLabel = "Restablecer",
+            onConfirm = {
+                confirmReset = false
+                ready = false
+                scope.launch {
+                    withContext(Dispatchers.IO) { sample.reset(profile) }
+                    plan.reload()
+                    ready = true
+                }
+            },
+            onDismiss = { confirmReset = false },
+        )
     }
 }
 
