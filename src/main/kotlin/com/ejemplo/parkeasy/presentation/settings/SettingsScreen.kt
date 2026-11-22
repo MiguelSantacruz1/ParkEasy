@@ -40,6 +40,11 @@ fun SettingsScreen(vm: SettingsViewModel = koinInject()) {
         )
         tariffs.forEach { TariffCard(it, vm::save) }
 
+        AppearanceSection(vm)
+        SecuritySection(vm)
+        BackupSection(vm)
+        ShortcutsSection()
+
         Text("Datos", style = MaterialTheme.typography.titleLarge)
         Text("Base de datos: ${vm.databasePath}")
     }

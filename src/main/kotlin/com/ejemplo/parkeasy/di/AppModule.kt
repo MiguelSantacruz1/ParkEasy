@@ -7,7 +7,11 @@ import com.ejemplo.parkeasy.data.db.ParkEasyDatabase
 import com.ejemplo.parkeasy.data.repository.SqlChangeLogRepository
 import com.ejemplo.parkeasy.data.repository.SqlFloorRepository
 import com.ejemplo.parkeasy.data.repository.SqlParkingRecordRepository
+import com.ejemplo.parkeasy.data.backup.BackupService
 import com.ejemplo.parkeasy.data.repository.SqlPlanElementRepository
+import com.ejemplo.parkeasy.data.repository.SqlSettingRepository
+import com.ejemplo.parkeasy.domain.repository.SettingRepository
+import com.ejemplo.parkeasy.domain.service.AppSettings
 import com.ejemplo.parkeasy.plan.PlanPersistence
 import com.ejemplo.parkeasy.domain.repository.PlanElementRepository
 import com.ejemplo.parkeasy.data.repository.SqlSpotRepository
@@ -43,7 +47,7 @@ val presentationModule = module {
     single { FloorsViewModel(get(), get(), get(), get()) }
     single { SpotsViewModel(get(), get(), get(), get(), get()) }
     single { RecordsViewModel(get(), get(), get(), get(), get()) }
-    single { SettingsViewModel(get(), get(), get()) }
+    single { SettingsViewModel(get(), get(), get(), get(), get(), get()) }
     single { PlanViewModel(get(), get(), get(), get(), get()) }
     single { HistoryViewModel(get(), get(), get(), get()) }
 }
@@ -63,6 +67,8 @@ val repositoryModule = module {
     single<TariffRepository> { SqlTariffRepository(get()) }
     single<Transactor> { SqlTransactor(get()) }
     single<PlanElementRepository> { SqlPlanElementRepository(get()) }
+    single<SettingRepository> { SqlSettingRepository(get()) }
+    single { BackupService(get(), get(), AppDirectories.dataDirectory().resolve("copias"), get()) }
 }
 
 /** Servicios del dominio con las reglas de integridad. */
@@ -74,6 +80,7 @@ val domainModule = module {
     single { ParkingService(get(), get(), get(), get(), get(), get(), get()) }
     single { TariffService(get(), get(), get()) }
     single { PlanPersistence(get(), get(), get(), get(), get()) }
+    single { AppSettings(get()) }
 }
 
 val appModules = listOf(presentationModule, dataModule, repositoryModule, domainModule)

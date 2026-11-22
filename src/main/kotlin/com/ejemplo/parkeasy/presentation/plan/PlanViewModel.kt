@@ -159,6 +159,12 @@ class PlanViewModel(
         }
     }
 
+    /** Vuelve a leer el plano de la base, por ejemplo después de restaurar una copia. */
+    fun reload() {
+        saveJob?.cancel()
+        scope.launch { _state.value.floorId?.let { loadFloor(it) } }
+    }
+
     fun selectFloor(floorId: Long) {
         if (floorId == _state.value.floorId) return
         scope.launch {
