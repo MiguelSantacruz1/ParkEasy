@@ -57,7 +57,24 @@ data/repository     implementaciones Sql* de cada interfaz
 
 Los servicios corren cada operación dentro de `Transactor.run`, así que un fallo a mitad de camino no deja datos a medias.
 
-## Esquema de la base (versión 2)
+## Paquete `plan` (Etapas 5 y 6)
+
+```
+plan/model          Geometry (Box, PathGeometry), PlanItem, PlanDocument, PlanJson
+plan/ops            PlanOps (mover, girar, redimensionar, puntos, apilado, borrar, copiar, hilera,
+                    zonas techadas, clics), ItemGeometry, Handles, History
+plan/PlanPersistence  une el plano con las tablas Spot y PlanElement
+presentation/plan   PlanViewModel, PlanRenderer, PlanCanvas, EditorScreen, HomeScreen
+```
+
+- El plano es inmutable: cada operación devuelve un `PlanDocument` nuevo. Deshacer y rehacer solo guardan y recuperan planos (`History`, 100 pasos).
+- Las medidas están en metros y el giro en grados alrededor del centro. El lienzo convierte píxeles a metros con el `Viewport`.
+- `plan/model` usa el enum `SpotType` del dominio; es la única dependencia de `plan` hacia `domain`.
+- Los puestos viven en `Spot` para que Puestos, Registros y el plano operativo vean lo mismo. El resto de elementos va en `PlanElement` como JSON con versión.
+- Guardar un plano es una sola transacción: borra los puestos quitados (no los ocupados), reactiva los que vuelven por «deshacer», crea los nuevos y reemplaza los elementos del piso.
+- El estado de cada puesto en el plano operativo sale de `Spot` + registros abiertos, igual que en la lista.
+
+## Esquema de la base (versión 3)
 
 | Tabla | Contenido |
 |---|---|
@@ -67,7 +84,8 @@ Los servicios corren cada operación dentro de `Transactor.run`, así que un fal
 | `ParkingRecord` | Entradas y salidas, con copia del puesto, piso y tarifa |
 | `ChangeLog` | Bitácora |
 | `Tariff` | Una tarifa por tipo de vehículo |
+| `PlanElement` | Vías, paredes, rampas, zonas techadas, textos…: JSON por elemento y piso |
 
-## Estado actual (Etapa 2)
+## Estado actual (Etapa 6)
 
-Existen la ventana, el tema, la navegación con siete pantallas vacías, Koin y la capa de datos con sus reglas. Las pantallas todavía no usan los servicios. El paquete `plan` se crea en la Etapa 5.
+Funcionan los pisos, los puestos, los registros con cobro, los ajustes, el editor del plano y el plano operativo en Inicio. Falta el historial/bitácora como pantalla, la exportación, las copias de seguridad, el tema oscuro seleccionable y el empaquetado.
