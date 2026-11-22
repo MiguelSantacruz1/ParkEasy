@@ -33,3 +33,41 @@ La base `parkeasy.db` se guarda en `%APPDATA%\ParkEasy` en Windows, `~/Library/A
 ## D8. El documento de instrucciones no se versiona
 
 `Prompt maestro - PARKEASY (administrador, escritorio).md` está en `.gitignore`. Es el encargo, no parte del código.
+
+## D9. El estado del puesto no se guarda
+
+La tabla `Spot` solo guarda si el puesto está bloqueado. OCUPADO se calcula con un `LEFT JOIN` contra el registro abierto (`exitTime IS NULL`). Así el estado y el registro no pueden discrepar. `Spot.status` en el dominio resuelve las tres posibilidades: bloqueado, ocupado o libre. Bloquear exige que el puesto esté libre, así que los dos nunca coinciden.
+
+## D10. Reglas en dos capas
+
+Las reglas viven en los servicios (`SpotService`, `FloorService`, `ParkingService`), que dan errores claros (`DomainError`) para mostrar en la interfaz. Además, la base tiene índices únicos parciales como red de seguridad:
+
+- `Spot(label)` único entre puestos no eliminados.
+- `ParkingRecord(spotId)` único mientras no tenga salida.
+- `ParkingRecord(plate)` único mientras no tenga salida.
+
+Si una regla del servicio tuviera un hueco, la base rechaza el dato igual. Hay pruebas para ambas capas.
+
+## D11. Borrado lógico y copias en el historial
+
+Pisos y puestos tienen una columna `deleted`. El registro guarda `spotLabel` y `floorName` como copia, así el historial sigue legible aunque el puesto o el piso ya no existan. Una etiqueta de un puesto eliminado se puede volver a usar.
+
+## D12. Horas como milisegundos UTC
+
+Las horas se guardan como `INTEGER` (milisegundos desde 1970 en UTC) y se manejan como `java.time.Instant`. La zona America/Bogota se aplica solo al mostrar. Los servicios reciben un `java.time.Clock`, lo que permite probar con un reloj controlado.
+
+## D13. Compatibilidad entre vehículo y puesto
+
+Un carro cabe en puestos de carro, de discapacitados y otros. Una moto, en puestos de moto y otros. El documento pide compatibilidad sin definir la tabla; esta es la interpretación elegida y vive en `SpotType.accepts`.
+
+## D14. Tarifas iniciales al abrir la base
+
+Las tarifas de carro (4.000 + 1.500) y moto (2.500 + 1.000) se insertan con `INSERT OR IGNORE` cada vez que se abre la base. Funciona igual para una base nueva y para una migrada, y no pisa tarifas que el administrador ya cambió.
+
+## D15. PlanElement llega en la Etapa 5
+
+El plano necesita un modelo de geometría que todavía no existe. Se agrega con su propia migración (`2.sqm`) en la Etapa 5, lo que además ejercita el mecanismo de migraciones con datos reales.
+
+## D16. Booleanos como INTEGER
+
+`INTEGER AS Boolean` no compila con SQLDelight 2.4.1 en este proyecto (genera un import inexistente). Las columnas son `INTEGER` 0 o 1 y los repositorios convierten.
