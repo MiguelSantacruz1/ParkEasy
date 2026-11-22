@@ -142,6 +142,7 @@ private fun Toolbar(vm: PlanViewModel, state: PlanUiState, onRow: () -> Unit) {
         FilterChip(state.showDimensions, vm::toggleDimensions, { Text("Cotas") })
         OutlinedButton(onClick = vm::fitToView) { Text("Ajustar") }
         OutlinedButton(onClick = onRow) { Text("Hilera…") }
+        ExportButtons(vm, state)
         Text(
             when (state.saveStatus) {
                 SaveStatus.SAVED -> "✓ Guardado"
@@ -363,4 +364,15 @@ private fun RowDialog(defaultLabel: String, onDismiss: () -> Unit, onConfirm: (I
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } },
     )
+}
+
+@Composable
+fun ExportButtons(vm: PlanViewModel, state: PlanUiState) {
+    val enabled = state.doc != null
+    OutlinedButton(enabled = enabled, onClick = {
+        com.ejemplo.parkeasy.presentation.common.FileDialogs.save("Exportar plano como imagen", "plano.png")?.let { vm.exportPlan(false, it) }
+    }) { Text("PNG") }
+    OutlinedButton(enabled = enabled, onClick = {
+        com.ejemplo.parkeasy.presentation.common.FileDialogs.save("Exportar plano como PDF", "plano.pdf")?.let { vm.exportPlan(true, it) }
+    }) { Text("PDF") }
 }

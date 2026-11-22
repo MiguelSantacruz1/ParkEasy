@@ -146,6 +146,16 @@ class PlanViewModel(
         }
     }
 
+    /** Exporta el plano del piso actual como imagen o PDF, tal como se ve (editor u operación). */
+    fun exportPlan(pdf: Boolean, target: java.nio.file.Path) {
+        val s = _state.value
+        val floor = s.floors.firstOrNull { it.id == s.floorId }?.name ?: "Plano"
+        val operation = s.mode == PlanMode.OPERATION
+        launchSafe("Plano exportado a ${target.fileName}") {
+            if (pdf) PlanExporter.exportPdf(s, floor, operation, target) else PlanExporter.exportPng(s, floor, operation, target)
+        }
+    }
+
     // ---- Pisos ----------------------------------------------------------------------------
 
     private fun onFloors(floors: List<Floor>) {

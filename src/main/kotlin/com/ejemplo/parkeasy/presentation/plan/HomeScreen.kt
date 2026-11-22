@@ -62,6 +62,7 @@ fun HomeScreen(
     Column(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             SummaryRow("Parqueadero", summary, Modifier.weight(1f))
+            ExportButtons(vm, state)
             Button(onClick = { records.openEntry() }) { Text("Registrar entrada") }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
