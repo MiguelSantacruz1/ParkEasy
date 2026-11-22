@@ -6,8 +6,8 @@ Presupuesto de commits: **mínimo 150**, sin máximo fijo, un cambio lógico por
 
 | Etapa | Alcance | Commits previstos | Estado |
 |---|---|---|---|
-| 1 | Arquitectura y estructura del proyecto | 22 | Terminada, pendiente de confirmación |
-| 2 | Modelo de datos y reglas | 14 | Pendiente |
+| 1 | Arquitectura y estructura del proyecto | 22 | Terminada |
+| 2 | Modelo de datos y reglas | 30 | Terminada, pendiente de confirmación |
 | 3 | Pisos y puestos | 16 | Pendiente |
 | 4 | Registro, cobro y bloqueos | 22 | Pendiente |
 | 5 | Motor y editor del plano | 34 | Pendiente |
@@ -17,7 +17,7 @@ Presupuesto de commits: **mínimo 150**, sin máximo fijo, un cambio lógico por
 | 9 | Pruebas, rendimiento y privacidad | 8 | Pendiente |
 | 10 | Empaquetado y entrega | 5 | Pendiente |
 
-Total previsto: 156.
+Total previsto: 172. La Etapa 2 usó más commits de los previstos (cada repositorio, servicio y archivo de pruebas va aparte), así que las siguientes bajan un poco; el mínimo de 150 sigue en pie.
 
 ## Etapa 1: criterio de aceptación
 
@@ -27,6 +27,15 @@ Total previsto: 156.
 - [x] Base SQLite inicializada con migraciones (probado con 6 pruebas unitarias).
 - [x] README, .gitignore, PLAN.md y docs/DECISIONES.md.
 - [x] Arranque real verificado en Windows 11: abre la ventana PARKEASY y crea parkeasy.db en %APPDATA%\ParkEasy. La interfaz no se revisó visualmente.
+
+## Etapa 2: criterio de aceptación
+
+- [x] Entidades: Floor, Spot, ParkingRecord, ChangeLog, Tariff y Setting. PlanElement pasa a la Etapa 5 (decisión D15).
+- [x] Repositorios con interfaz en `domain` e implementación SQLite en `data`.
+- [x] Migración 1 → 2 con prueba: conserva datos, deja el mismo esquema que una base nueva y se verificó con la base real de la Etapa 1.
+- [x] Reglas de integridad con pruebas: ocupado solo con registro abierto, bloqueado no admite entradas, placa no duplicada, salida no anterior a la llegada, llegada no futura, puesto ocupado no se elimina, borrado lógico con historial, etiquetas únicas.
+- [x] 71 pruebas en verde.
+- [ ] La numeración automática de etiquetas y el resumen de ocupación se hacen en la Etapa 3, donde se usan.
 
 ## Registro
 
