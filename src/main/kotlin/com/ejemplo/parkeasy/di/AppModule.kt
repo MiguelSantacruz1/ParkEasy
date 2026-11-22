@@ -20,6 +20,7 @@ import com.ejemplo.parkeasy.domain.service.ChangeLogger
 import com.ejemplo.parkeasy.domain.service.FloorService
 import com.ejemplo.parkeasy.domain.service.ParkingService
 import com.ejemplo.parkeasy.domain.service.SpotService
+import com.ejemplo.parkeasy.domain.service.TariffService
 import com.ejemplo.parkeasy.presentation.navigation.Navigator
 import org.koin.dsl.module
 import java.time.Clock
@@ -52,7 +53,8 @@ val domainModule = module {
     single { ChangeLogger(get(), get()) }
     single { FloorService(get(), get(), get(), get()) }
     single { SpotService(get(), get(), get(), get()) }
-    single { ParkingService(get(), get(), get(), get(), get(), get()) }
+    single { ParkingService(get(), get(), get(), get(), get(), get(), get()) }
+    single { TariffService(get(), get(), get()) }
 }
 
 val appModules = listOf(presentationModule, dataModule, repositoryModule, domainModule)

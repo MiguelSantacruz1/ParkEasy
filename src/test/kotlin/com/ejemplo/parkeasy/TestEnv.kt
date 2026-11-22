@@ -17,6 +17,7 @@ import com.ejemplo.parkeasy.domain.service.CheckInRequest
 import com.ejemplo.parkeasy.domain.service.FloorService
 import com.ejemplo.parkeasy.domain.service.ParkingService
 import com.ejemplo.parkeasy.domain.service.SpotService
+import com.ejemplo.parkeasy.domain.service.TariffService
 import kotlinx.coroutines.Dispatchers
 import java.time.Clock
 import java.time.Instant
@@ -44,7 +45,8 @@ class TestEnv(val clock: MutableClock = MutableClock()) : AutoCloseable {
     val logger = ChangeLogger(changeLog, clock)
     val floorService = FloorService(floors, spots, logger, transactor)
     val spotService = SpotService(spots, floors, logger, transactor)
-    val parkingService = ParkingService(spots, floors, records, logger, transactor, clock)
+    val parkingService = ParkingService(spots, floors, records, tariffs, logger, transactor, clock)
+    val tariffService = TariffService(tariffs, logger, transactor)
 
     /** Crea un piso y un puesto de carro libre; devuelve el id del puesto. */
     fun floorWithSpot(label: String = "A-01", type: SpotType = SpotType.CAR): Long {
