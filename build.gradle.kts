@@ -34,6 +34,9 @@ dependencies {
     implementation(libs.sqldelight.coroutines)
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.mockk)
 }
 
 tasks.test {
