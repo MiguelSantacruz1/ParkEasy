@@ -4,6 +4,16 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.compose)
+    alias(libs.plugins.sqldelight)
+}
+
+sqldelight {
+    databases {
+        create("ParkEasyDatabase") {
+            packageName.set("com.ejemplo.parkeasy.data.db")
+            dialect(libs.sqldelight.dialect.sqlite)
+        }
+    }
 }
 
 group = "com.ejemplo.parkeasy"
@@ -20,6 +30,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.swing)
     implementation(libs.koin.core)
     implementation(libs.koin.compose)
+    implementation(libs.sqldelight.driver.sqlite)
+    implementation(libs.sqldelight.coroutines)
 
     testImplementation(kotlin("test"))
 }
