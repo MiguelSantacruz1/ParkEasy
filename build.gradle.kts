@@ -37,6 +37,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(libs.mockk)
+    testImplementation(compose.desktop.uiTestJUnit4)
 }
 
 tasks.test {
