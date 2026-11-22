@@ -7,17 +7,13 @@ Presupuesto de commits: **mínimo 150**, sin máximo fijo, un cambio lógico por
 | Etapa | Alcance | Commits previstos | Estado |
 |---|---|---|---|
 | 1 | Arquitectura y estructura del proyecto | 22 | Terminada |
-| 2 | Modelo de datos y reglas | 30 | Terminada, pendiente de confirmación |
-| 3 | Pisos y puestos | 16 | Pendiente |
-| 4 | Registro, cobro y bloqueos | 22 | Pendiente |
-| 5 | Motor y editor del plano | 34 | Pendiente |
-| 6 | Plano operativo | 12 | Pendiente |
-| 7 | Historial, exportación y copias | 12 | Pendiente |
-| 8 | Ajustes, tema, atajos y pulido | 11 | Pendiente |
-| 9 | Pruebas, rendimiento y privacidad | 8 | Pendiente |
-| 10 | Empaquetado y entrega | 5 | Pendiente |
+| 2 | Modelo de datos y reglas | 30 | Terminada |
+| 3 + 4 | Pisos, puestos, registro, cobro, bloqueos y bitácora | 31 | Terminada, pendiente de confirmación |
+| 5 + 6 | Motor y editor del plano, plano operativo | 30 | Pendiente |
+| 7 + 8 | Historial, exportación, copias, ajustes, tema, atajos y pulido | 22 | Pendiente |
+| 9 + 10 | Pruebas, rendimiento, privacidad, empaquetado y entrega | 15 | Pendiente |
 
-Total previsto: 172. La Etapa 2 usó más commits de los previstos (cada repositorio, servicio y archivo de pruebas va aparte), así que las siguientes bajan un poco; el mínimo de 150 sigue en pie.
+Por pedido del dueño las etapas se juntaron en bloques para ir más rápido; se reporta al final de cada bloque. Llevamos 85 commits; el total previsto es 183, por encima del mínimo de 150.
 
 ## Etapa 1: criterio de aceptación
 
@@ -36,6 +32,19 @@ Total previsto: 172. La Etapa 2 usó más commits de los previstos (cada reposit
 - [x] Reglas de integridad con pruebas: ocupado solo con registro abierto, bloqueado no admite entradas, placa no duplicada, salida no anterior a la llegada, llegada no futura, puesto ocupado no se elimina, borrado lógico con historial, etiquetas únicas.
 - [x] 71 pruebas en verde.
 - [ ] La numeración automática de etiquetas y el resumen de ocupación se hacen en la Etapa 3, donde se usan.
+
+## Etapas 3 y 4: criterio de aceptación
+
+- [x] Pisos: agregar, renombrar, reordenar y eliminar, con confirmación que dice cuántos puestos se van y bloqueo si hay ocupados.
+- [x] Puestos: agregar varios con numeración consecutiva, editar, eliminar con deshacer, filtrar por piso, tipo, estado y techado.
+- [x] Resumen de ocupación en total y por piso.
+- [x] Entrada con placa (validador con aviso), color, tipo, hora editable y observaciones.
+- [x] Salida con duración y desglose del cobro antes de confirmar. Valores de referencia en pruebas: carro 61 min = 5.500, 3 h = 7.000; moto 61 min = 3.500, 3 h = 4.500.
+- [x] Tarifas configurables en Ajustes; cada registro cerrado guarda su copia.
+- [x] Corregir registros, cambiar de puesto sin perder la llegada, buscar por placa, marcar libre u ocupado, bloquear y desbloquear. Todo queda en la bitácora.
+- [x] 122 pruebas en verde, incluida una prueba de interfaz que recorre el flujo completo con la ventana real.
+- [ ] No verificado a mano: el aspecto visual de las pantallas, el recorrido con teclado y el cambio de tamaño de la ventana. La prueba de interfaz comprueba funciones, no estética.
+- [ ] Pendiente: la bitácora no tiene pantalla todavía; se puede ver en la base. Textos aún en el código (D17).
 
 ## Registro
 
