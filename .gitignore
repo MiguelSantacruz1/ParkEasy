@@ -19,7 +19,7 @@ out/
 *.sqlite3
 *.parkeasy-backup
 
-# Configuración local y secretos
+# ConfiguraciÃ³n local y secretos
 config.local*
 local.properties
 .env
@@ -34,8 +34,11 @@ local.properties
 .DS_Store
 Thumbs.db
 
-# Documento de instrucciones del proyecto (no forma parte del código)
+# Documento de instrucciones del proyecto (no forma parte del cÃ³digo)
 Prompt maestro*.md
 
 # Claude Code
 .claude/
+
+# Salida de compilacion del IDE
+bin/
