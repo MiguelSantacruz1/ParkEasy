@@ -1,7 +1,7 @@
 package com.ejemplo.parkeasy
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import com.ejemplo.parkeasy.presentation.theme.ParkEasyTheme
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -16,7 +16,7 @@ fun main() = application {
         state = rememberWindowState(size = DpSize(1280.dp, 800.dp)),
     ) {
         window.minimumSize = Dimension(960, 640)
-        MaterialTheme {
+        ParkEasyTheme {
             Text("PARKEASY")
         }
     }
