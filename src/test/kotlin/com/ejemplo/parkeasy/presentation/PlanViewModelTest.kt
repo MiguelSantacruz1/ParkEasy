@@ -28,7 +28,11 @@ class PlanViewModelTest {
             runBlocking {
                 waitFor { vm.state.value.doc != null }
                 vm.toggleSnap() // sin imán: las posiciones salen exactas
-                block(env, vm, messages)
+                try {
+                    block(env, vm, messages)
+                } finally {
+                    vm.dispose()
+                }
             }
         }
     }
