@@ -1,4 +1,4 @@
-﻿package com.ejemplo.parkeasy
+package com.ejemplo.parkeasy
 
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -6,8 +6,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.ejemplo.parkeasy.di.appModules
-import com.ejemplo.parkeasy.presentation.AppShell
-import com.ejemplo.parkeasy.presentation.theme.ParkEasyTheme
+import com.ejemplo.parkeasy.presentation.AppRoot
 import org.koin.compose.KoinApplication
 import java.awt.Dimension
 
@@ -19,9 +18,7 @@ fun main() = application {
     ) {
         window.minimumSize = Dimension(960, 640)
         KoinApplication(application = { modules(appModules) }) {
-            ParkEasyTheme {
-                AppShell()
-            }
+            AppRoot()
         }
     }
 }
