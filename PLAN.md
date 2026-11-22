@@ -1,4 +1,4 @@
-﻿# Plan de PARKEASY
+# Plan de PARKEASY
 
 Presupuesto de commits: **mínimo 150**, sin máximo fijo, un cambio lógico por commit y sin relleno. Los commits van solo con la identidad de Git del dueño del repositorio.
 
@@ -9,11 +9,11 @@ Presupuesto de commits: **mínimo 150**, sin máximo fijo, un cambio lógico por
 | 1 | Arquitectura y estructura del proyecto | 22 | Terminada |
 | 2 | Modelo de datos y reglas | 30 | Terminada |
 | 3 + 4 | Pisos, puestos, registro, cobro, bloqueos y bitácora | 31 | Terminada, pendiente de confirmación |
-| 5 + 6 | Motor y editor del plano, plano operativo | 30 | Terminada, pendiente de confirmación |
-| 7 + 8 | Historial, exportación, copias, ajustes, tema, atajos y pulido | 22 | Pendiente |
+| 5 + 6 | Motor y editor del plano, plano operativo | 30 | Terminada |
+| 7 + 8 | Historial, exportación, copias, ajustes, tema, atajos y pulido | 22 | Terminada, pendiente de confirmación |
 | 9 + 10 | Pruebas, rendimiento, privacidad, empaquetado y entrega | 15 | Pendiente |
 
-Por pedido del dueño las etapas se juntaron en bloques para ir más rápido; se reporta al final de cada bloque. Llevamos más de 110 commits; el total previsto es 183, por encima del mínimo de 150.
+Por pedido del dueño las etapas se juntaron en bloques para ir más rápido; se reporta al final de cada bloque. Llevamos más de 130 commits; el total previsto es 183, por encima del mínimo de 150.
 
 ## Etapa 1: criterio de aceptación
 
@@ -57,6 +57,19 @@ Por pedido del dueño las etapas se juntaron en bloques para ir más rápido; se
 - [x] La app real abre (ventana PARKEASY, sin errores en la salida).
 - [ ] No verificado a ojo: cómo se ve el dibujo del plano, el arrastre real con el ratón, el zoom con la rueda, los atajos con foco en el lienzo y la rampa o el texto dentro de campos. Las pruebas cubren la lógica, no el aspecto ni el manejo real del puntero.
 - [ ] Pendiente: cotas entre elementos (solo hay cotas de tamaño), y las esquinas redondeadas de polígonos solo afectan al contorno.
+
+## Etapas 7 y 8: criterio de aceptación
+
+- [x] Historial con filtros (placa, fechas, piso, tipo, estado), totales y bitácora de cambios; exportación a CSV de lo que se ve.
+- [x] Copias de seguridad: crear y restaurar con confirmación y copia previa automática; rechaza archivos que no son de PARKEASY y copias de una versión más nueva; migra copias antiguas. Probado con 6 pruebas.
+- [x] Tema claro, oscuro o del sistema, que se recuerda.
+- [x] PIN opcional con sal, y pantalla de entrada. Es una barrera de uso, no cifrado (D27).
+- [x] Asistente de primer uso (nombre, piso con puestos, aviso de tarifas); se salta si ya hay pisos.
+- [x] Exportación del plano a PNG y PDF. El PNG se revisó a ojo con datos de ejemplo: zona techada, vía, puestos libre/ocupado/bloqueado con símbolo y placa, entrada y cuadrícula.
+- [x] Atajos documentados en `docs/ATAJOS.md` y en Ajustes.
+- [x] 203 pruebas en verde en dos corridas completas seguidas.
+- [ ] No verificado a mano: las pantallas de Historial, Ajustes, PIN y asistente se probaron con pruebas de interfaz, no a ojo; los diálogos nativos de archivo (guardar, abrir) no se probaron; tampoco una restauración con la base real.
+- [ ] Pendiente: mover los textos a `strings.xml` (D17, D28); el PDF no tiene texto seleccionable (D25).
 
 ## Registro
 
