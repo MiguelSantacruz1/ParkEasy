@@ -58,7 +58,8 @@ class SampleData(
 
     private fun seed(profile: AppProfile) {
         settings.set(MARKER, "1")
-        if (profile == AppProfile.PERF) seedLarge() else seedDemo()
+        // Una sola transacción: en disco evita un fsync por cada registro (3000+ inserciones).
+        db.transaction { if (profile == AppProfile.PERF) seedLarge() else seedDemo() }
     }
 
     // ---- Demostración: 2 pisos, ~30 puestos cada uno ------------------------------------------
