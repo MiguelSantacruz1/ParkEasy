@@ -1,0 +1,70 @@
+-- Migración de la versión 1 (solo Setting) a la versión 2: pisos, puestos, registros, bitácora y tarifas.
+
+CREATE TABLE Floor (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    sortOrder INTEGER NOT NULL,
+    canvasWidth REAL NOT NULL,
+    canvasHeight REAL NOT NULL,
+    deleted INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE Spot (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    floorId INTEGER NOT NULL REFERENCES Floor(id),
+    label TEXT NOT NULL,
+    type TEXT NOT NULL,
+    shape TEXT NOT NULL,
+    x REAL NOT NULL,
+    y REAL NOT NULL,
+    width REAL NOT NULL,
+    height REAL NOT NULL,
+    rotation REAL NOT NULL,
+    covered INTEGER NOT NULL DEFAULT 0,
+    blocked INTEGER NOT NULL DEFAULT 0,
+    blockReason TEXT,
+    deleted INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE UNIQUE INDEX Spot_label_active ON Spot(label) WHERE deleted = 0;
+CREATE INDEX Spot_floor ON Spot(floorId);
+
+CREATE TABLE ParkingRecord (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    spotId INTEGER NOT NULL REFERENCES Spot(id),
+    spotLabel TEXT NOT NULL,
+    floorName TEXT NOT NULL,
+    plate TEXT NOT NULL,
+    color TEXT NOT NULL,
+    vehicleType TEXT NOT NULL,
+    entryTime INTEGER NOT NULL,
+    exitTime INTEGER,
+    charged INTEGER,
+    tariffFirstHour INTEGER,
+    tariffExtraHour INTEGER,
+    graceMinutes INTEGER,
+    notes TEXT NOT NULL DEFAULT ''
+);
+
+CREATE UNIQUE INDEX ParkingRecord_open_spot ON ParkingRecord(spotId) WHERE exitTime IS NULL;
+CREATE UNIQUE INDEX ParkingRecord_open_plate ON ParkingRecord(plate) WHERE exitTime IS NULL;
+CREATE INDEX ParkingRecord_plate ON ParkingRecord(plate);
+CREATE INDEX ParkingRecord_entry ON ParkingRecord(entryTime);
+
+CREATE TABLE ChangeLog (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    timestamp INTEGER NOT NULL,
+    action TEXT NOT NULL,
+    entity TEXT NOT NULL,
+    entityId INTEGER,
+    detail TEXT NOT NULL
+);
+
+CREATE INDEX ChangeLog_timestamp ON ChangeLog(timestamp);
+
+CREATE TABLE Tariff (
+    vehicleType TEXT NOT NULL PRIMARY KEY,
+    firstHour INTEGER NOT NULL,
+    extraHour INTEGER NOT NULL,
+    graceMinutes INTEGER NOT NULL DEFAULT 0
+);

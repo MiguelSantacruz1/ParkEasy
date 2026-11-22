@@ -1,0 +1,52 @@
+-- Registros de estacionamiento. Mientras exitTime sea NULL el vehículo sigue dentro.
+-- Las horas se guardan como milisegundos desde 1970 (UTC). spotLabel y floorName son
+-- copias para que el historial no cambie si el puesto o el piso se eliminan.
+CREATE TABLE ParkingRecord (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    spotId INTEGER NOT NULL REFERENCES Spot(id),
+    spotLabel TEXT NOT NULL,
+    floorName TEXT NOT NULL,
+    plate TEXT NOT NULL,
+    color TEXT NOT NULL,
+    vehicleType TEXT NOT NULL,
+    entryTime INTEGER NOT NULL,
+    exitTime INTEGER,
+    charged INTEGER,
+    tariffFirstHour INTEGER,
+    tariffExtraHour INTEGER,
+    graceMinutes INTEGER,
+    notes TEXT NOT NULL DEFAULT ''
+);
+
+-- Un puesto tiene como mucho un registro abierto, y una placa también.
+CREATE UNIQUE INDEX ParkingRecord_open_spot ON ParkingRecord(spotId) WHERE exitTime IS NULL;
+CREATE UNIQUE INDEX ParkingRecord_open_plate ON ParkingRecord(plate) WHERE exitTime IS NULL;
+CREATE INDEX ParkingRecord_plate ON ParkingRecord(plate);
+CREATE INDEX ParkingRecord_entry ON ParkingRecord(entryTime);
+
+selectAll:
+SELECT * FROM ParkingRecord ORDER BY entryTime DESC, id DESC;
+
+selectOpen:
+SELECT * FROM ParkingRecord WHERE exitTime IS NULL ORDER BY entryTime DESC, id DESC;
+
+selectById:
+SELECT * FROM ParkingRecord WHERE id = ?;
+
+selectOpenBySpot:
+SELECT * FROM ParkingRecord WHERE spotId = ? AND exitTime IS NULL;
+
+selectOpenByPlate:
+SELECT * FROM ParkingRecord WHERE plate = ? AND exitTime IS NULL;
+
+insert:
+INSERT INTO ParkingRecord(spotId, spotLabel, floorName, plate, color, vehicleType, entryTime, notes)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+close:
+UPDATE ParkingRecord
+SET exitTime = ?, charged = ?, tariffFirstHour = ?, tariffExtraHour = ?, graceMinutes = ?
+WHERE id = ?;
+
+lastInsertId:
+SELECT last_insert_rowid();

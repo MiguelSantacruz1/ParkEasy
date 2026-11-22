@@ -1,0 +1,20 @@
+-- Bitácora de cambios: altas, bajas, ediciones, entradas, salidas, bloqueos y correcciones.
+CREATE TABLE ChangeLog (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    timestamp INTEGER NOT NULL,
+    action TEXT NOT NULL,
+    entity TEXT NOT NULL,
+    entityId INTEGER,
+    detail TEXT NOT NULL
+);
+
+CREATE INDEX ChangeLog_timestamp ON ChangeLog(timestamp);
+
+selectRecent:
+SELECT * FROM ChangeLog ORDER BY timestamp DESC, id DESC LIMIT ?;
+
+insert:
+INSERT INTO ChangeLog(timestamp, action, entity, entityId, detail) VALUES (?, ?, ?, ?, ?);
+
+lastInsertId:
+SELECT last_insert_rowid();

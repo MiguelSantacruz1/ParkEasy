@@ -1,0 +1,72 @@
+-- Puestos. El estado OCUPADO no se guarda: se deriva del registro abierto en ParkingRecord.
+CREATE TABLE Spot (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    floorId INTEGER NOT NULL REFERENCES Floor(id),
+    label TEXT NOT NULL,
+    type TEXT NOT NULL,
+    shape TEXT NOT NULL,
+    x REAL NOT NULL,
+    y REAL NOT NULL,
+    width REAL NOT NULL,
+    height REAL NOT NULL,
+    rotation REAL NOT NULL,
+    covered INTEGER NOT NULL DEFAULT 0,
+    blocked INTEGER NOT NULL DEFAULT 0,
+    blockReason TEXT,
+    deleted INTEGER NOT NULL DEFAULT 0
+);
+
+-- La etiqueta es única entre los puestos que no están eliminados.
+CREATE UNIQUE INDEX Spot_label_active ON Spot(label) WHERE deleted = 0;
+CREATE INDEX Spot_floor ON Spot(floorId);
+
+selectActive:
+SELECT Spot.id, Spot.floorId, Spot.label, Spot.type, Spot.shape, Spot.x, Spot.y, Spot.width, Spot.height,
+       Spot.rotation, Spot.covered, Spot.blocked, Spot.blockReason, ParkingRecord.id AS currentRecordId
+FROM Spot
+LEFT JOIN ParkingRecord ON ParkingRecord.spotId = Spot.id AND ParkingRecord.exitTime IS NULL
+WHERE Spot.deleted = 0
+ORDER BY Spot.floorId, Spot.label;
+
+selectByFloor:
+SELECT Spot.id, Spot.floorId, Spot.label, Spot.type, Spot.shape, Spot.x, Spot.y, Spot.width, Spot.height,
+       Spot.rotation, Spot.covered, Spot.blocked, Spot.blockReason, ParkingRecord.id AS currentRecordId
+FROM Spot
+LEFT JOIN ParkingRecord ON ParkingRecord.spotId = Spot.id AND ParkingRecord.exitTime IS NULL
+WHERE Spot.deleted = 0 AND Spot.floorId = ?
+ORDER BY Spot.label;
+
+selectById:
+SELECT Spot.id, Spot.floorId, Spot.label, Spot.type, Spot.shape, Spot.x, Spot.y, Spot.width, Spot.height,
+       Spot.rotation, Spot.covered, Spot.blocked, Spot.blockReason, ParkingRecord.id AS currentRecordId
+FROM Spot
+LEFT JOIN ParkingRecord ON ParkingRecord.spotId = Spot.id AND ParkingRecord.exitTime IS NULL
+WHERE Spot.deleted = 0 AND Spot.id = ?;
+
+selectByLabel:
+SELECT Spot.id, Spot.floorId, Spot.label, Spot.type, Spot.shape, Spot.x, Spot.y, Spot.width, Spot.height,
+       Spot.rotation, Spot.covered, Spot.blocked, Spot.blockReason, ParkingRecord.id AS currentRecordId
+FROM Spot
+LEFT JOIN ParkingRecord ON ParkingRecord.spotId = Spot.id AND ParkingRecord.exitTime IS NULL
+WHERE Spot.deleted = 0 AND Spot.label = ?;
+
+insert:
+INSERT INTO Spot(floorId, label, type, shape, x, y, width, height, rotation, covered)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+update:
+UPDATE Spot
+SET floorId = ?, label = ?, type = ?, shape = ?, x = ?, y = ?, width = ?, height = ?, rotation = ?, covered = ?
+WHERE id = ?;
+
+setBlocked:
+UPDATE Spot SET blocked = ?, blockReason = ? WHERE id = ?;
+
+softDelete:
+UPDATE Spot SET deleted = 1 WHERE id = ?;
+
+softDeleteByFloor:
+UPDATE Spot SET deleted = 1 WHERE floorId = ?;
+
+lastInsertId:
+SELECT last_insert_rowid();
