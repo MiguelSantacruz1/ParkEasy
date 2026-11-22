@@ -104,9 +104,15 @@ fun BackupSection(vm: SettingsViewModel, plan: PlanViewModel = koinInject()) {
 
 @Composable
 fun ShortcutsSection() {
-    Text("Atajos de teclado del editor", style = MaterialTheme.typography.titleLarge)
+    Text("Atajos de teclado", style = MaterialTheme.typography.titleLarge)
     Column(Modifier.padding(start = 4.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
         listOf(
+            "Ctrl+N" to "Registrar entrada",
+            "Ctrl+F" to "Buscar placa (abre el historial)",
+            "Ctrl+E" to "Alternar entre inicio y editor del plano",
+            "Ctrl+1 / Ctrl+2 / Ctrl+3" to "Ir a Inicio / Editor / Historial",
+            "Ctrl+," to "Ir a Ajustes",
+            "— En el editor —" to "",
             "Ctrl+Z / Ctrl+Y" to "Deshacer / rehacer",
             "Ctrl+C / Ctrl+V / Ctrl+D" to "Copiar, pegar y duplicar",
             "Ctrl+A" to "Seleccionar todo",

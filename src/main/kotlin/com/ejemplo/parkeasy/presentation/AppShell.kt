@@ -22,6 +22,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.foundation.focusable
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 import com.ejemplo.parkeasy.presentation.common.MessageCenter
 import com.ejemplo.parkeasy.presentation.floors.FloorsScreen
@@ -56,6 +65,8 @@ fun AppShell(
     val dialog by records.dialog.collectAsState()
     val recordsState by records.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
+    val focus = remember { FocusRequester() }
+    LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
 
     LaunchedEffect(message?.id) {
         val m = message ?: return@LaunchedEffect
@@ -65,7 +76,22 @@ fun AppShell(
     }
 
     Scaffold(snackbarHost = { SnackbarHost(snackbar) }) { padding ->
-        Row(modifier = Modifier.fillMaxSize().padding(padding)) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(padding).focusRequester(focus).focusable().onPreviewKeyEvent { e ->
+                if (e.type != KeyEventType.KeyDown || !e.isCtrlPressed || dialog != null) return@onPreviewKeyEvent false
+                when (e.key) {
+                    Key.N -> records.openEntry()
+                    Key.F -> navigator.navigateTo(Screen.HISTORY)
+                    Key.E -> navigator.navigateTo(if (current == Screen.EDITOR) Screen.HOME else Screen.EDITOR)
+                    Key.One -> navigator.navigateTo(Screen.HOME)
+                    Key.Two -> navigator.navigateTo(Screen.EDITOR)
+                    Key.Three -> navigator.navigateTo(Screen.HISTORY)
+                    Key.Comma -> navigator.navigateTo(Screen.SETTINGS)
+                    else -> return@onPreviewKeyEvent false
+                }
+                true
+            },
+        ) {
             NavigationRail {
                 Screen.entries.forEach { screen ->
                     NavigationRailItem(
