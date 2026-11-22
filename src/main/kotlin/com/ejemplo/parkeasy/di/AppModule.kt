@@ -15,7 +15,7 @@ val presentationModule = module {
 /** Módulo de Koin de la capa de datos: abre la base SQLite en la carpeta del usuario. */
 val dataModule = module {
     single<SqlDriver> { DatabaseFactory.createDriver(AppDirectories.databaseFile()) }
-    single<ParkEasyDatabase> { DatabaseFactory.create(get()) }
+    single<ParkEasyDatabase>(createdAtStart = true) { DatabaseFactory.create(get()) }
 }
 
 val appModules = listOf(presentationModule, dataModule)
