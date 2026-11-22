@@ -5,6 +5,7 @@ import com.ejemplo.parkeasy.domain.model.ChangeAction
 import com.ejemplo.parkeasy.domain.model.ChangeEntity
 import com.ejemplo.parkeasy.domain.model.NewSpot
 import com.ejemplo.parkeasy.domain.model.Spot
+import com.ejemplo.parkeasy.domain.model.SpotShape
 import com.ejemplo.parkeasy.domain.model.SpotStatus
 import com.ejemplo.parkeasy.domain.model.SpotType
 import com.ejemplo.parkeasy.domain.repository.FloorRepository
@@ -116,6 +117,29 @@ class SpotService(
         spots.restore(spot.id)
         logger.log(ChangeAction.SPOT_CREATED, ChangeEntity.SPOT, spot.id, "Puesto ${spot.label} restaurado")
     }
+
+    /**
+     * Reactiva un puesto eliminado con su etiqueta (la de la copia del plano que lo vuelve a pedir).
+     * Falla si otro puesto activo ya usa esa etiqueta.
+     */
+    fun restore(spotId: Long, label: String) = transactor.run {
+        val clean = label.trim()
+        if (clean.isEmpty()) throw DomainError.BlankLabel()
+        spots.findByLabel(clean)?.let { if (it.id != spotId) throw DomainError.DuplicateLabel(clean) }
+        spots.restore(spotId)
+        logger.log(ChangeAction.SPOT_CREATED, ChangeEntity.SPOT, spotId, "Puesto $clean restaurado")
+    }
+
+    /**
+     * Guarda dónde y cómo está dibujado un puesto en el plano. No toca etiqueta ni tipo y
+     * funciona también con puestos ocupados; no deja rastro en la bitácora porque mover un
+     * puesto no cambia datos del negocio.
+     */
+    fun place(spotId: Long, shape: SpotShape, x: Double, y: Double, width: Double, height: Double, rotation: Double, covered: Boolean) =
+        transactor.run {
+            val spot = require(spotId)
+            spots.update(spot.copy(shape = shape, x = x, y = y, width = width, height = height, rotation = rotation, covered = covered))
+        }
 
     private fun require(spotId: Long): Spot = spots.getById(spotId) ?: throw DomainError.SpotNotFound(spotId)
 
