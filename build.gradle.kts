@@ -18,6 +18,8 @@ dependencies {
     implementation(compose.material3)
     implementation(compose.components.resources)
     implementation(libs.kotlinx.coroutines.swing)
+    implementation(libs.koin.core)
+    implementation(libs.koin.compose)
 
     testImplementation(kotlin("test"))
 }
