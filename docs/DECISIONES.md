@@ -103,3 +103,19 @@ Cada cambio programa un guardado a los 400 ms. El estado muestra guardado, pendi
 ## D24. Mover un puesto no queda en la bitácora
 
 `SpotService.place` guarda posición, tamaño, giro y techo sin escribir en la bitácora ni exigir que el puesto esté libre. La bitácora registra datos del negocio (crear, renombrar, bloquear, eliminar), no cada arrastre. Un puesto ocupado se puede mover, pero no borrar ni cambiar de tipo.
+
+## D25. El PDF lleva el plano como imagen
+
+Skiko no trae escritura de PDF en esta versión y sumar una librería solo para esto pesa más que el beneficio. `PlanExporter` escribe a mano un PDF de una página con la imagen del plano (comprimida con Flate). El texto del PDF no se puede seleccionar ni el dibujo ampliar sin perder nitidez; el PNG sale a 40 píxeles por metro. Se prueba que la tabla de referencias apunte a cada objeto.
+
+## D26. Restaurar copias por ATTACH y no reemplazando el archivo
+
+La app tiene la base abierta, así que reemplazar el archivo dejaría conexiones apuntando a un archivo que ya no existe. Se adjunta la copia, se vacían las tablas y se reinsertan con listas de columnas explícitas, todo en una transacción, y se avisa a los observadores para que las pantallas se actualicen. Una copia de una versión anterior se migra primero en un archivo temporal. Siempre se deja una copia de lo que había en la carpeta `copias`.
+
+## D27. El PIN es una barrera de uso, no cifrado
+
+El PIN (4 a 8 dígitos, con sal y SHA-256) impide que alguien use la app abierta en el equipo. No protege los datos: la base es un archivo SQLite sin cifrar y cuatro dígitos se adivinan en segundos si alguien tiene el hash. Se dice así en Ajustes. Cifrar la base queda fuera del alcance.
+
+## D28. Los textos siguen en el código
+
+Mover todos los textos a `strings.xml` toca casi cada pantalla y sus pruebas, y se dejó para el último bloque para no mezclarlo con funciones nuevas. La deuda D17 sigue abierta.
