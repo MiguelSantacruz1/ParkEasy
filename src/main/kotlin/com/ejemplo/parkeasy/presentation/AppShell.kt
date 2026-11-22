@@ -27,6 +27,7 @@ import com.ejemplo.parkeasy.presentation.common.MessageCenter
 import com.ejemplo.parkeasy.presentation.floors.FloorsScreen
 import com.ejemplo.parkeasy.presentation.navigation.Navigator
 import com.ejemplo.parkeasy.presentation.navigation.Screen
+import com.ejemplo.parkeasy.presentation.history.HistoryScreen
 import com.ejemplo.parkeasy.presentation.plan.EditorScreen
 import com.ejemplo.parkeasy.presentation.plan.HomeScreen
 import com.ejemplo.parkeasy.presentation.records.CorrectDialog
@@ -79,6 +80,7 @@ fun AppShell(
                 when (current) {
                     Screen.HOME -> HomeScreen()
                     Screen.EDITOR -> EditorScreen()
+                    Screen.HISTORY -> HistoryScreen()
                     Screen.FLOORS -> FloorsScreen()
                     Screen.SPOTS -> SpotsScreen()
                     Screen.RECORDS -> RecordsScreen()
