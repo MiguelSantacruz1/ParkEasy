@@ -1,0 +1,19 @@
+-- Elementos del plano que no son puestos. `data` guarda el elemento como JSON versionado.
+CREATE TABLE PlanElement (
+    id TEXT NOT NULL PRIMARY KEY,
+    floorId INTEGER NOT NULL REFERENCES Floor(id),
+    type TEXT NOT NULL,
+    data TEXT NOT NULL,
+    zOrder INTEGER NOT NULL
+);
+
+CREATE INDEX PlanElement_floor ON PlanElement(floorId);
+
+selectByFloor:
+SELECT data FROM PlanElement WHERE floorId = ? ORDER BY zOrder, id;
+
+insert:
+INSERT OR REPLACE INTO PlanElement(id, floorId, type, data, zOrder) VALUES (?, ?, ?, ?, ?);
+
+deleteByFloor:
+DELETE FROM PlanElement WHERE floorId = ?;

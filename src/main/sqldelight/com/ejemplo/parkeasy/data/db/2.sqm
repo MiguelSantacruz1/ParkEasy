@@ -1,0 +1,11 @@
+-- Migración de la versión 2 a la 3: elementos del plano que no son puestos (vías, paredes, rampas, textos...).
+
+CREATE TABLE PlanElement (
+    id TEXT NOT NULL PRIMARY KEY,
+    floorId INTEGER NOT NULL REFERENCES Floor(id),
+    type TEXT NOT NULL,
+    data TEXT NOT NULL,
+    zOrder INTEGER NOT NULL
+);
+
+CREATE INDEX PlanElement_floor ON PlanElement(floorId);
