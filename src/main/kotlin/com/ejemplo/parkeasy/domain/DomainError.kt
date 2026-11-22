@@ -31,5 +31,11 @@ sealed class DomainError(message: String) : Exception(message) {
     class EntryInFuture(val entryTime: Instant) : DomainError("La hora de llegada $entryTime está en el futuro")
     class ExitBeforeEntry(val entryTime: Instant, val exitTime: Instant) :
         DomainError("La hora de salida $exitTime es anterior a la llegada $entryTime")
+    class SameSpot(val spotLabel: String) : DomainError("El vehículo ya está en el puesto $spotLabel")
+    class InvalidTariff : DomainError("Los valores de la tarifa no pueden ser negativos")
+    class BlankFloorName : DomainError("El nombre del piso no puede estar vacío")
+    class InvalidCount(val count: Int) : DomainError("La cantidad de puestos debe estar entre 1 y 500, no $count")
+    class RecordStateMismatch(val recordId: Long) :
+        DomainError("La hora de salida de un registro no se cambia desde la corrección: usa registrar salida")
     class RecordAlreadyClosed(val recordId: Long) : DomainError("El registro $recordId ya tiene hora de salida")
 }
