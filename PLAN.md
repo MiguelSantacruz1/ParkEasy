@@ -74,3 +74,12 @@ Por pedido del dueño las etapas se juntaron en bloques para ir más rápido; se
 ## Registro
 
 - Historial anterior del repositorio (versión de reservas) reemplazado por un historial nuevo el 22 de noviembre de 2026, por pedido del dueño.
+
+## Etapas 9 y 10: criterio de aceptación
+
+- Perfiles `demo` y `perf` con datos de prueba y aviso permanente; restablecer funciona. Probado con `SampleDataTest`.
+- Rendimiento con 500 puestos y 3000 registros medido (`PerformanceTest` y arranque real); ver el informe final.
+- Atajos globales y notas de accesibilidad en `docs/ATAJOS.md`.
+- `docs/PRIVACIDAD.md` y README final.
+- `createDistributable` y `packageMsi` generan la app y el MSI; la app empaquetada abre.
+- Pendiente declarado: textos en `strings.xml` (D17/D28), MSI sin probar instalado, lectores de pantalla.
