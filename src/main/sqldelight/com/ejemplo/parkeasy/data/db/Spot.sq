@@ -65,6 +65,9 @@ UPDATE Spot SET blocked = ?, blockReason = ? WHERE id = ?;
 softDelete:
 UPDATE Spot SET deleted = 1 WHERE id = ?;
 
+restore:
+UPDATE Spot SET deleted = 0 WHERE id = ?;
+
 softDeleteByFloor:
 UPDATE Spot SET deleted = 1 WHERE floorId = ?;
 

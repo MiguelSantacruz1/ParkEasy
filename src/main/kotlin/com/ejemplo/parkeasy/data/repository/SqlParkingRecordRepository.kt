@@ -51,6 +51,17 @@ class SqlParkingRecordRepository(
         )
     }
 
+    override fun correct(record: ParkingRecord) {
+        queries.correct(
+            record.plate, record.color, record.notes, record.entryTime.toEpochMilli(),
+            record.exitTime?.toEpochMilli(), record.charged, record.id,
+        )
+    }
+
+    override fun relocate(id: Long, spotId: Long, spotLabel: String, floorName: String) {
+        queries.relocate(spotId, spotLabel, floorName, id)
+    }
+
     @Suppress("LongParameterList")
     private fun toRecord(
         id: Long, spotId: Long, spotLabel: String, floorName: String, plate: String, color: String,

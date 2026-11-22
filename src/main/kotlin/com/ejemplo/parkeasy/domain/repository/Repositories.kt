@@ -37,6 +37,7 @@ interface SpotRepository {
     fun update(spot: Spot)
     fun setBlocked(id: Long, blocked: Boolean, reason: String?)
     fun softDelete(id: Long)
+    fun restore(id: Long)
     fun softDeleteByFloor(floorId: Long)
 }
 
@@ -49,6 +50,12 @@ interface ParkingRecordRepository {
     fun findOpenByPlate(plate: String): ParkingRecord?
     fun insert(record: NewParkingRecord): Long
     fun close(id: Long, closing: RecordClosing)
+
+    /** Corrige placa, color, observaciones, horas y valor cobrado de un registro. */
+    fun correct(record: ParkingRecord)
+
+    /** Cambia el registro de puesto, conservando la hora de llegada. */
+    fun relocate(id: Long, spotId: Long, spotLabel: String, floorName: String)
 }
 
 interface ChangeLogRepository {

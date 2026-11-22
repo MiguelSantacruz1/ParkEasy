@@ -55,6 +55,10 @@ class SqlSpotRepository(
         queries.softDelete(id)
     }
 
+    override fun restore(id: Long) {
+        queries.restore(id)
+    }
+
     override fun softDeleteByFloor(floorId: Long) {
         queries.softDeleteByFloor(floorId)
     }

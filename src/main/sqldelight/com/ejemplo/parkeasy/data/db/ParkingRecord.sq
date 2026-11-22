@@ -48,5 +48,13 @@ UPDATE ParkingRecord
 SET exitTime = ?, charged = ?, tariffFirstHour = ?, tariffExtraHour = ?, graceMinutes = ?
 WHERE id = ?;
 
+correct:
+UPDATE ParkingRecord
+SET plate = ?, color = ?, notes = ?, entryTime = ?, exitTime = ?, charged = ?
+WHERE id = ?;
+
+relocate:
+UPDATE ParkingRecord SET spotId = ?, spotLabel = ?, floorName = ? WHERE id = ?;
+
 lastInsertId:
 SELECT last_insert_rowid();
