@@ -7,6 +7,7 @@ import java.time.Instant
  * necesita para explicar el motivo en español.
  */
 sealed class DomainError(message: String) : Exception(message) {
+    class InvalidBackup(val reason: String) : DomainError("No se puede usar esa copia: $reason")
     class FloorNotFound(val floorId: Long) : DomainError("No existe el piso $floorId")
     class SpotNotFound(val spotId: Long) : DomainError("No existe el puesto $spotId")
     class RecordNotFound(val recordId: Long) : DomainError("No existe el registro $recordId")
