@@ -6,7 +6,9 @@ import com.ejemplo.parkeasy.data.db.ParkEasyDatabase
 import com.ejemplo.parkeasy.data.repository.SqlChangeLogRepository
 import com.ejemplo.parkeasy.data.repository.SqlFloorRepository
 import com.ejemplo.parkeasy.data.repository.SqlParkingRecordRepository
+import com.ejemplo.parkeasy.data.repository.SqlPlanElementRepository
 import com.ejemplo.parkeasy.data.repository.SqlSpotRepository
+import com.ejemplo.parkeasy.plan.PlanPersistence
 import com.ejemplo.parkeasy.data.repository.SqlTariffRepository
 import com.ejemplo.parkeasy.data.repository.SqlTransactor
 import com.ejemplo.parkeasy.domain.model.NewSpot
@@ -47,6 +49,8 @@ class TestEnv(val clock: MutableClock = MutableClock()) : AutoCloseable {
     val spotService = SpotService(spots, floors, logger, transactor)
     val parkingService = ParkingService(spots, floors, records, tariffs, logger, transactor, clock)
     val tariffService = TariffService(tariffs, logger, transactor)
+    val planElements = SqlPlanElementRepository(db)
+    val planPersistence = PlanPersistence(floors, spots, planElements, spotService, transactor)
 
     /** Crea un piso y un puesto de carro libre; devuelve el id del puesto. */
     fun floorWithSpot(label: String = "A-01", type: SpotType = SpotType.CAR): Long {
