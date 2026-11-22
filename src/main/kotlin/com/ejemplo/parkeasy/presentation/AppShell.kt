@@ -27,6 +27,8 @@ import com.ejemplo.parkeasy.presentation.common.MessageCenter
 import com.ejemplo.parkeasy.presentation.floors.FloorsScreen
 import com.ejemplo.parkeasy.presentation.navigation.Navigator
 import com.ejemplo.parkeasy.presentation.navigation.Screen
+import com.ejemplo.parkeasy.presentation.plan.EditorScreen
+import com.ejemplo.parkeasy.presentation.plan.HomeScreen
 import com.ejemplo.parkeasy.presentation.records.CorrectDialog
 import com.ejemplo.parkeasy.presentation.records.EntryDialog
 import com.ejemplo.parkeasy.presentation.records.ExitDialog
@@ -75,6 +77,8 @@ fun AppShell(
             }
             Box(modifier = Modifier.fillMaxSize()) {
                 when (current) {
+                    Screen.HOME -> HomeScreen()
+                    Screen.EDITOR -> EditorScreen()
                     Screen.FLOORS -> FloorsScreen()
                     Screen.SPOTS -> SpotsScreen()
                     Screen.RECORDS -> RecordsScreen()
