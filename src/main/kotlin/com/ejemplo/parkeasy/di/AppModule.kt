@@ -7,6 +7,9 @@ import com.ejemplo.parkeasy.data.db.ParkEasyDatabase
 import com.ejemplo.parkeasy.data.repository.SqlChangeLogRepository
 import com.ejemplo.parkeasy.data.repository.SqlFloorRepository
 import com.ejemplo.parkeasy.data.repository.SqlParkingRecordRepository
+import com.ejemplo.parkeasy.data.repository.SqlPlanElementRepository
+import com.ejemplo.parkeasy.plan.PlanPersistence
+import com.ejemplo.parkeasy.domain.repository.PlanElementRepository
 import com.ejemplo.parkeasy.data.repository.SqlSpotRepository
 import com.ejemplo.parkeasy.data.repository.SqlTariffRepository
 import com.ejemplo.parkeasy.data.repository.SqlTransactor
@@ -55,6 +58,7 @@ val repositoryModule = module {
     single<ChangeLogRepository> { SqlChangeLogRepository(get()) }
     single<TariffRepository> { SqlTariffRepository(get()) }
     single<Transactor> { SqlTransactor(get()) }
+    single<PlanElementRepository> { SqlPlanElementRepository(get()) }
 }
 
 /** Servicios del dominio con las reglas de integridad. */
@@ -65,6 +69,7 @@ val domainModule = module {
     single { SpotService(get(), get(), get(), get()) }
     single { ParkingService(get(), get(), get(), get(), get(), get(), get()) }
     single { TariffService(get(), get(), get()) }
+    single { PlanPersistence(get(), get(), get(), get(), get()) }
 }
 
 val appModules = listOf(presentationModule, dataModule, repositoryModule, domainModule)
