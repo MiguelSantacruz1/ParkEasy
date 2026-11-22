@@ -27,3 +27,20 @@ Los atajos funcionan cuando el foco está en el plano. Si estás escribiendo en 
 | Clic en un puesto libre | Abre el registro de entrada con ese puesto |
 | Clic en un puesto ocupado | Abre el registro de salida |
 | Clic en un puesto bloqueado | Pide confirmar el desbloqueo |
+## Atajos globales (cualquier pantalla)
+
+| Acción | Atajo |
+|---|---|
+| Registrar entrada | Ctrl+N |
+| Buscar placa (abre el Historial) | Ctrl+F |
+| Alternar Inicio y editor del plano | Ctrl+E |
+| Ir a Inicio / Editor / Historial | Ctrl+1 / Ctrl+2 / Ctrl+3 |
+| Ir a Ajustes | Ctrl+, |
+
+Se ignoran mientras hay un diálogo abierto. Guardar no tiene atajo porque el plano se guarda solo (a los 400 ms de editar).
+
+## Accesibilidad
+
+- El estado de un puesto no depende solo del color: cada puesto muestra su etiqueta y el estado también aparece en el texto del detalle y de las listas.
+- Todo se puede operar con el teclado menos dibujar y arrastrar en el plano, que necesita ratón.
+- Compatibilidad con lectores de pantalla: **no verificada**. El plano se dibuja en un canvas, que no expone sus elementos a esas herramientas.
