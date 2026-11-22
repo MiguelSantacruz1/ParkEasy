@@ -120,3 +120,40 @@ fun ShortcutsSection() {
         ).forEach { (keys, what) -> Text("$keys — $what", style = MaterialTheme.typography.bodyMedium) }
     }
 }
+
+@Composable
+fun PrivacySection(vm: SettingsViewModel) {
+    var text by remember { mutableStateOf("") }
+    var pending by remember { mutableStateOf<Pair<java.time.LocalDate, Int>?>(null) }
+    val date = runCatching { java.time.LocalDate.parse(text.trim()) }.getOrNull()
+
+    Text("Privacidad y registros antiguos", style = MaterialTheme.typography.titleLarge)
+    Text(
+        "Las placas son datos personales. Borra los registros cerrados que ya no necesites: se eliminan de verdad, no se pueden recuperar " +
+            "(salvo desde una copia de seguridad) y los vehículos que siguen dentro no se tocan. Más detalles en docs/PRIVACIDAD.md.",
+        style = MaterialTheme.typography.bodyMedium,
+    )
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        OutlinedTextField(
+            text, { text = it }, label = { Text("Borrar salidas anteriores a (AAAA-MM-DD)") }, singleLine = true,
+            isError = text.isNotBlank() && date == null,
+        )
+        OutlinedButton(
+            enabled = date != null,
+            onClick = { date?.let { d -> pending = vm.previewPurge(d)?.let { n -> d to n } ?: run { null } } },
+        ) { Text("Revisar") }
+    }
+    pending?.let { (d, n) ->
+        if (n == 0) {
+            ConfirmDialog("Nada que borrar", "No hay registros cerrados anteriores al $d.", "Entendido", { pending = null }, { pending = null })
+        } else {
+            ConfirmDialog(
+                title = "Borrar registros antiguos",
+                text = "Se borrarán $n registros cerrados anteriores al $d. Esta acción no se puede deshacer.",
+                confirmLabel = "Borrar $n registros",
+                onConfirm = { vm.purge(d); pending = null; text = "" },
+                onDismiss = { pending = null },
+            )
+        }
+    }
+}

@@ -5,6 +5,7 @@ import com.ejemplo.parkeasy.data.db.AppDirectories
 import com.ejemplo.parkeasy.domain.model.Tariff
 import com.ejemplo.parkeasy.domain.repository.TariffRepository
 import com.ejemplo.parkeasy.domain.service.AppSettings
+import com.ejemplo.parkeasy.domain.service.RetentionService
 import com.ejemplo.parkeasy.domain.service.TariffService
 import com.ejemplo.parkeasy.domain.service.ThemeMode
 import com.ejemplo.parkeasy.presentation.common.BaseViewModel
@@ -22,6 +23,7 @@ class SettingsViewModel(
     private val tariffService: TariffService,
     private val appSettings: AppSettings,
     private val backup: BackupService,
+    private val retention: RetentionService,
     private val clock: Clock,
     private val messages: MessageCenter,
 ) : BaseViewModel(messages) {
@@ -48,6 +50,16 @@ class SettingsViewModel(
     fun restore(source: Path, onDone: () -> Unit = {}) = launchSafe(onSuccess = onDone) {
         val summary = backup.restoreFrom(source)
         messages.info("Copia restaurada. Lo anterior quedó en ${summary.safetyCopy}")
+    }
+
+    // ---- Privacidad ----
+
+    /** Cuántos registros cerrados se borrarían; null si la fecha no es válida. */
+    fun previewPurge(before: java.time.LocalDate): Int? = runCatching { retention.preview(before) }.getOrNull()
+
+    fun purge(before: java.time.LocalDate, onDone: () -> Unit = {}) = launchSafe(onSuccess = onDone) {
+        val deleted = retention.purge(before)
+        messages.info("$deleted registros borrados")
     }
 
     // ---- PIN ----
