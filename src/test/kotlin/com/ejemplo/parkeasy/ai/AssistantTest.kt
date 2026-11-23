@@ -89,6 +89,38 @@ class AssistantTest {
     }
 
     @Test
+    fun `reintenta cuando Gemini esta sobrecargado y luego responde`() {
+        var calls = 0
+        val pauses = mutableListOf<Long>()
+        val s = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        s.createContext("/") { ex ->
+            ex.requestBody.readBytes()
+            val ok = ++calls >= 3
+            val bytes = (if (ok) """{"candidates":[{"content":{"parts":[{"text":"listo"}]}}]}""" else """{"error":{"message":"overloaded"}}""").toByteArray()
+            ex.sendResponseHeaders(if (ok) 200 else 503, bytes.size.toLong())
+            ex.responseBody.use { it.write(bytes) }
+        }
+        s.start()
+        try {
+            val c = GeminiClient({ "k" }, { "m" }, "http://127.0.0.1:${s.address.port}/v1beta", pause = { pauses += it })
+            assertEquals("listo", c.reply("c", listOf(ChatTurn(true, "hola"))))
+            assertEquals(3, calls)
+            assertEquals(listOf(1_000L, 2_000L), pauses)
+        } finally { s.stop(0) }
+    }
+
+    @Test
+    fun `tras agotar los reintentos muestra el detalle de Google`() {
+        val (s, seen) = server(503, """{"error":{"message":"The model is overloaded."}}""")
+        try {
+            val c = GeminiClient({ "k" }, { "m" }, "http://127.0.0.1:${s.address.port}/v1beta", pause = {})
+            val e = assertFailsWith<AiException> { c.reply("c", listOf(ChatTurn(true, "hola"))) }
+            assertEquals(3, seen.size)
+            assertTrue("overloaded" in e.message!! && "503" in e.message!!, e.message)
+        } finally { s.stop(0) }
+    }
+
+    @Test
     fun `sin clave no sale ninguna consulta`() {
         val (s, seen) = server(200, "{}")
         try {
