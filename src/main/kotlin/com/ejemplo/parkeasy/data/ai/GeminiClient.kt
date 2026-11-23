@@ -28,7 +28,13 @@ class GeminiClient(
     private val model: () -> String,
     private val baseUrl: String = "https://generativelanguage.googleapis.com/v1beta",
     private val http: HttpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build(),
+    private val attempts: Int = 3,
+    private val pause: (Long) -> Unit = { Thread.sleep(it) },
 ) : AiClient {
+
+    private companion object {
+        val RETRYABLE = setOf(500, 502, 503, 504)
+    }
 
     override fun reply(system: String, history: List<ChatTurn>): String {
         val key = apiKey().trim()
@@ -54,15 +60,24 @@ class GeminiClient(
             .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
             .build()
 
-        val response = try {
-            http.send(request, HttpResponse.BodyHandlers.ofString(Charsets.UTF_8))
-        } catch (e: IOException) {
-            throw AiException("No hay conexión con Gemini. Revisa el internet e intenta de nuevo.")
-        } catch (e: InterruptedException) {
-            Thread.currentThread().interrupt()
-            throw AiException("La consulta se interrumpió")
+        // Los errores 500, 502, 503 y 504 suelen ser sobrecarga pasajera: se reintenta con pausas de 1 s y 2 s.
+        var attempt = 1
+        while (true) {
+            val response = try {
+                http.send(request, HttpResponse.BodyHandlers.ofString(Charsets.UTF_8))
+            } catch (e: IOException) {
+                throw AiException("No hay conexión con Gemini. Revisa el internet e intenta de nuevo.")
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                throw AiException("La consulta se interrumpió")
+            }
+            if (response.statusCode() in RETRYABLE && attempt < attempts) {
+                pause(1_000L * attempt)
+                attempt++
+                continue
+            }
+            return parse(response.statusCode(), response.body())
         }
-        return parse(response.statusCode(), response.body())
     }
 
     private fun parts(text: String): JsonArray = buildJsonArray { add(buildJsonObject { put("text", text) }) }
@@ -91,7 +106,8 @@ class GeminiClient(
             401, 403 -> "La clave de Gemini no es válida o no tiene permiso."
             404 -> "No existe ese modelo de Gemini. Revisa el nombre en Ajustes."
             429 -> "Se acabó el cupo gratis de Gemini por ahora. Espera un rato e intenta de nuevo."
-            in 500..599 -> "Gemini tiene un problema en este momento. Intenta más tarde."
+            in 500..599 -> "Gemini tiene un problema en este momento (error $status${detail?.let { ": $it" } ?: ""}). " +
+                "Se reintentó varias veces; prueba en unos minutos o con otro modelo en Ajustes."
             else -> "Gemini respondió con el error $status"
         }
     }
