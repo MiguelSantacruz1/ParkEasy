@@ -19,6 +19,9 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
 
+/** Modelos que se prueban, en orden, cuando el elegido no existe o está saturado. */
+val DEFAULT_FALLBACKS = listOf("gemini-flash-latest", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-2.5-flash")
+
 /**
  * Cliente de la API REST de Gemini (`generateContent`). La clave va en la cabecera `x-goog-api-key`, nunca
  * en la URL. [baseUrl] se puede cambiar para probar contra un servidor local.
@@ -30,6 +33,7 @@ class GeminiClient(
     private val http: HttpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build(),
     private val attempts: Int = 3,
     private val pause: (Long) -> Unit = { Thread.sleep(it) },
+    private val fallbacks: List<String> = DEFAULT_FALLBACKS,
 ) : AiClient {
 
     private companion object {
@@ -53,33 +57,43 @@ class GeminiClient(
             )
             put("generationConfig", buildJsonObject { put("temperature", 0.3) })
         }
-        val request = HttpRequest.newBuilder(URI.create("$baseUrl/models/${model().trim()}:generateContent"))
-            .timeout(Duration.ofSeconds(60))
-            .header("Content-Type", "application/json")
-            .header("x-goog-api-key", key)
-            .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
-            .build()
-
-        // Los errores 500, 502, 503 y 504 suelen ser sobrecarga pasajera: se reintenta con pausas de 1 s y 2 s.
-        var attempt = 1
-        while (true) {
-            val response = try {
-                http.send(request, HttpResponse.BodyHandlers.ofString(Charsets.UTF_8))
-            } catch (e: IOException) {
-                throw AiException("No hay conexión con Gemini. Revisa el internet e intenta de nuevo.")
-            } catch (e: InterruptedException) {
-                Thread.currentThread().interrupt()
-                throw AiException("La consulta se interrumpió")
+        // Si un modelo no existe (404) o está saturado (500, 502, 503, 504 tras reintentar con pausas), se prueba el siguiente.
+        val models = (listOf(model().trim()) + fallbacks).filter { it.isNotEmpty() }.distinct()
+        var last: AiException? = null
+        for ((i, m) in models.withIndex()) {
+            val request = HttpRequest.newBuilder(URI.create("$baseUrl/models/$m:generateContent"))
+                .timeout(Duration.ofSeconds(60))
+                .header("Content-Type", "application/json")
+                .header("x-goog-api-key", key)
+                .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
+                .build()
+            val maxAttempts = if (i == 0) attempts else minOf(attempts, 2)
+            var attempt = 1
+            while (true) {
+                val response = try {
+                    http.send(request, HttpResponse.BodyHandlers.ofString(Charsets.UTF_8))
+                } catch (e: IOException) {
+                    throw AiException("No hay conexión con Gemini. Revisa el internet e intenta de nuevo.")
+                } catch (e: InterruptedException) {
+                    Thread.currentThread().interrupt()
+                    throw AiException("La consulta se interrumpió")
+                }
+                val status = response.statusCode()
+                if (status in RETRYABLE && attempt < maxAttempts) {
+                    pause(1_000L * attempt)
+                    attempt++
+                    continue
+                }
+                if (status == 404 || status in RETRYABLE) {
+                    last = AiException(errorMessage(status, response.body()))
+                    break
+                }
+                return parse(status, response.body())
             }
-            if (response.statusCode() in RETRYABLE && attempt < attempts) {
-                pause(1_000L * attempt)
-                attempt++
-                continue
-            }
-            return parse(response.statusCode(), response.body())
         }
+        val tried = models.joinToString(", ")
+        throw AiException("${last?.message ?: "Gemini no respondió"} Modelos probados: $tried.")
     }
-
     private fun parts(text: String): JsonArray = buildJsonArray { add(buildJsonObject { put("text", text) }) }
 
     internal fun parse(status: Int, body: String): String {
