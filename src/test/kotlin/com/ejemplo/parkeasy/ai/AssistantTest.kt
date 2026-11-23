@@ -60,7 +60,7 @@ class AssistantTest {
     }
 
     private fun client(s: HttpServer, key: String = "k-123") =
-        GeminiClient({ key }, { "modelo-x" }, "http://127.0.0.1:${s.address.port}/v1beta")
+        GeminiClient({ key }, { "modelo-x" }, "http://127.0.0.1:${s.address.port}/v1beta", fallbacks = emptyList())
 
     @Test
     fun `manda la clave en la cabecera y lee la respuesta`() {
@@ -102,7 +102,7 @@ class AssistantTest {
         }
         s.start()
         try {
-            val c = GeminiClient({ "k" }, { "m" }, "http://127.0.0.1:${s.address.port}/v1beta", pause = { pauses += it })
+            val c = GeminiClient({ "k" }, { "m" }, "http://127.0.0.1:${s.address.port}/v1beta", pause = { pauses += it }, fallbacks = emptyList())
             assertEquals("listo", c.reply("c", listOf(ChatTurn(true, "hola"))))
             assertEquals(3, calls)
             assertEquals(listOf(1_000L, 2_000L), pauses)
@@ -113,7 +113,7 @@ class AssistantTest {
     fun `tras agotar los reintentos muestra el detalle de Google`() {
         val (s, seen) = server(503, """{"error":{"message":"The model is overloaded."}}""")
         try {
-            val c = GeminiClient({ "k" }, { "m" }, "http://127.0.0.1:${s.address.port}/v1beta", pause = {})
+            val c = GeminiClient({ "k" }, { "m" }, "http://127.0.0.1:${s.address.port}/v1beta", pause = {}, fallbacks = emptyList())
             val e = assertFailsWith<AiException> { c.reply("c", listOf(ChatTurn(true, "hola"))) }
             assertEquals(3, seen.size)
             assertTrue("overloaded" in e.message!! && "503" in e.message!!, e.message)
@@ -121,8 +121,42 @@ class AssistantTest {
     }
 
     @Test
-    fun `sin clave no sale ninguna consulta`() {
-        val (s, seen) = server(200, "{}")
+    fun `si el modelo no existe o esta saturado prueba el siguiente`() {
+        val used = mutableListOf<String>()
+        val s = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        s.createContext("/") { ex ->
+            ex.requestBody.readBytes()
+            val model = ex.requestURI.path.substringAfter("/models/").substringBefore(":")
+            used += model
+            val (code, text) = when (model) {
+                "viejo" -> 404 to """{"error":{"message":"not found"}}"""
+                "saturado" -> 503 to """{"error":{"message":"overloaded"}}"""
+                else -> 200 to """{"candidates":[{"content":{"parts":[{"text":"desde $model"}]}}]}"""
+            }
+            val bytes = text.toByteArray()
+            ex.sendResponseHeaders(code, bytes.size.toLong())
+            ex.responseBody.use { it.write(bytes) }
+        }
+        s.start()
+        try {
+            val c = GeminiClient({ "k" }, { "viejo" }, "http://127.0.0.1:${s.address.port}/v1beta", pause = {}, fallbacks = listOf("saturado", "bueno", "otro"))
+            assertEquals("desde bueno", c.reply("c", listOf(ChatTurn(true, "hola"))))
+            assertEquals(listOf("viejo", "saturado", "saturado", "bueno"), used)
+        } finally { s.stop(0) }
+    }
+
+    @Test
+    fun `si todos los modelos fallan dice cuales probo`() {
+        val (s, _) = server(503, """{"error":{"message":"overloaded"}}""")
+        try {
+            val c = GeminiClient({ "k" }, { "a" }, "http://127.0.0.1:${s.address.port}/v1beta", pause = {}, fallbacks = listOf("b"))
+            val e = assertFailsWith<AiException> { c.reply("c", listOf(ChatTurn(true, "hola"))) }
+            assertTrue("a, b" in e.message!!, e.message)
+        } finally { s.stop(0) }
+    }
+
+    @Test
+    fun `sin clave no sale ninguna consulta`() {        val (s, seen) = server(200, "{}")
         try {
             assertFailsWith<AiException> { client(s, key = " ").reply("c", listOf(ChatTurn(true, "hola"))) }
             assertTrue(seen.isEmpty())
