@@ -14,6 +14,7 @@ Aplicación de escritorio para administrar un parqueadero: pisos y puestos, plan
 - **Registros**: entrada, salida con cobro, corrección, cambio de puesto, bloqueo de puestos.
 - **Historial**: filtros por placa, fechas, piso, tipo y estado; totales; exportar a CSV.
 - **Exportar el plano** a PNG y PDF.
+- **Asistente con IA** (opcional, Gemini): preguntas en español sobre ocupación, ingresos y horas pico. Viene apagado; ver [docs/PRIVACIDAD.md](docs/PRIVACIDAD.md).
 - **Ajustes**: tarifas, tema claro/oscuro, PIN, copias de seguridad, borrado de registros antiguos, atajos.
 
 ## Requisitos
@@ -71,7 +72,7 @@ En **Ajustes → Copias de seguridad**: «Crear copia…» guarda un archivo `.d
 
 ## Datos y privacidad
 
-La base `parkeasy.db` está en `%APPDATA%\ParkEasy`. La app no hace llamadas de red ni envía telemetría. Detalle, conservación de datos y notas sobre la Ley 1581 de 2012 en [docs/PRIVACIDAD.md](docs/PRIVACIDAD.md).
+La base `parkeasy.db` está en `%APPDATA%\ParkEasy`. La app no envía telemetría y solo sale a internet si activas el asistente con IA. Detalle, conservación de datos y notas sobre la Ley 1581 de 2012 en [docs/PRIVACIDAD.md](docs/PRIVACIDAD.md).
 
 ## Documentación
 

@@ -130,3 +130,6 @@ Los atajos de pantalla (Ctrl+N, Ctrl+F, Ctrl+E, Ctrl+1/2/3, Ctrl+,) se capturan 
 ## D31. El runtime del instalador lleva módulos extra
 
 El runtime recortado de jpackage no incluía `java.sql`, y la app empaquetada se cerraba al abrir porque el driver SQLite lo necesita. Se agregan `java.sql`, `java.naming` y `jdk.unsupported` en `nativeDistributions`.
+## D32. Asistente con Gemini sobre resúmenes sin placas
+
+El asistente no recibe registros: la app arma un resumen agregado (`ParkingSummary`) y el modelo responde solo con eso. Así se pueden hacer preguntas de ocupación e ingresos sin mandar placas a un servicio externo, que es lo delicado con el plan gratis de Gemini. Está apagado hasta que se pone una clave, y se llama por REST con `java.net.http` (sin SDK, para no sumar dependencias). El modelo por defecto es `gemini-2.5-flash` y se puede cambiar en Ajustes porque los nombres de modelo cambian. Queda fuera: leer placas con cámara (necesitaría enviar fotos) y que el modelo ejecute acciones en la app.

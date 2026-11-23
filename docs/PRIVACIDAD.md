@@ -21,8 +21,8 @@ Todo queda en un archivo SQLite local: `%APPDATA%\ParkEasy\parkeasy.db` en Windo
 ## Qué no hace la app
 
 - No tiene telemetría ni analítica.
-- No hace llamadas de red (no hay código de red en el proyecto; se puede comprobar con una búsqueda de `java.net` o `http` en `src/main`).
-- No envía los datos a ningún servidor.
+- No hace llamadas de red por su cuenta. La única excepción es el **asistente con IA**, que viene apagado (ver abajo). Sin clave de Gemini en Ajustes no sale nada del equipo.
+- No envía los datos a ningún servidor propio.
 
 ## Cuánto tiempo se conservan
 
@@ -44,3 +44,13 @@ La ley de protección de datos personales puede aplicar al parqueadero como resp
 ## Datos de prueba
 
 Los perfiles `demo` y `perf` usan sus propias bases (`parkeasy-demo.db`, `parkeasy-perf.db`) y solo placas ficticias con prefijo `TST` (o `INS` en rendimiento). Cada registro lleva la marca `TEST_DATA` en observaciones. Nunca se mezclan con la base de producción.
+
+## Asistente con IA (opcional)
+
+Si el administrador pega una clave de la API de Gemini en **Ajustes → Asistente con IA**, cada pregunta envía a Google (`generativelanguage.googleapis.com`) un resumen de la operación y el historial de la conversación.
+
+- **Se envía:** nombre del parqueadero, ocupación por piso, tarifas, cantidad de vehículos dentro y cuántas horas llevan, ingresos y estadías por día de los últimos 30 días, entradas por hora del día, y lo que el usuario escribe en sus preguntas.
+- **No se envía:** placas, colores, observaciones, etiquetas de puesto ni bitácora. Una prueba automática lo comprueba (`AssistantTest`).
+- **Plan gratis de Gemini:** según las condiciones de Google para ese plan, lo enviado puede usarse para mejorar sus productos y revisarlo personas. Por eso el resumen no lleva datos personales y no se debe escribir placas ni nombres en las preguntas. Con un plan de pago las condiciones cambian: conviene leerlas.
+- **La clave** se guarda en la tabla `Setting` sin cifrar, igual que el resto de datos. «Apagar y borrar clave» la elimina. Una clave filtrada se revoca en Google AI Studio.
+- Las respuestas pueden ser incorrectas; las cifras importantes se confirman en el Historial.- Las copias de seguridad incluyen la tabla `Setting`, así que **también guardan la clave de Gemini**. Quien reciba una copia puede usarla; apaga y borra la clave antes de compartir una copia.
