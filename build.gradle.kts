@@ -60,7 +60,7 @@ compose.desktop {
             packageName = "ParkEasy"
             packageVersion = "1.0.0"
             // El runtime recortado del instalador necesita JDBC (SQLite) y nombres/zonas para java.sql y java.naming.
-            modules("java.sql", "java.naming", "jdk.unsupported")
+            modules("java.sql", "java.naming", "jdk.unsupported", "java.net.http")
         }
     }
 }
