@@ -111,6 +111,7 @@ fun AppShell(
                     Screen.SPOTS -> SpotsScreen()
                     Screen.RECORDS -> RecordsScreen()
                     Screen.SETTINGS -> SettingsScreen()
+                    Screen.ASSISTANT -> com.ejemplo.parkeasy.presentation.assistant.AssistantScreen()
                     else -> PlaceholderScreen(current)
                 }
             }

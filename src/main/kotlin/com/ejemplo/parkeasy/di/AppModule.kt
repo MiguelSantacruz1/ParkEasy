@@ -51,6 +51,7 @@ val presentationModule = module {
     single { SettingsViewModel(get(), get(), get(), get(), get(), get(), get()) }
     single { PlanViewModel(get(), get(), get(), get(), get()) }
     single { HistoryViewModel(get(), get(), get(), get()) }
+    single { com.ejemplo.parkeasy.presentation.assistant.AssistantViewModel(get(), get(), get()) }
 }
 
 /** Módulo de Koin de la capa de datos: abre la base SQLite en la carpeta del usuario. */
@@ -83,6 +84,12 @@ val domainModule = module {
     single { PlanPersistence(get(), get(), get(), get(), get()) }
     single { AppSettings(get()) }
     single { RetentionService(get(), get(), get(), get()) }
+    single { com.ejemplo.parkeasy.domain.ai.AiSettings(get()) }
+    single<com.ejemplo.parkeasy.domain.ai.AiClient> {
+        val ai = get<com.ejemplo.parkeasy.domain.ai.AiSettings>()
+        com.ejemplo.parkeasy.data.ai.GeminiClient(apiKey = { ai.apiKey }, model = { ai.model })
+    }
+    single { com.ejemplo.parkeasy.domain.ai.AssistantService(get(), get(), get(), get(), get(), get(), get()) }
     single { com.ejemplo.parkeasy.demo.SampleData(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }
 

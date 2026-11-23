@@ -163,3 +163,34 @@ fun PrivacySection(vm: SettingsViewModel) {
         }
     }
 }
+@Composable
+fun AssistantSection(ai: com.ejemplo.parkeasy.domain.ai.AiSettings = koinInject()) {
+    var key by remember { mutableStateOf("") }
+    var model by remember { mutableStateOf(ai.model) }
+    var saved by remember { mutableStateOf(ai.enabled) }
+
+    Text("Asistente con IA (Gemini)", style = MaterialTheme.typography.titleLarge)
+    Text(
+        "Es opcional y viene apagado. Para activarlo pega una clave de la API de Gemini (gratis en Google AI Studio). " +
+            "Al preguntar, la app envía a Google un resumen de la operación: ocupación, tarifas, ingresos por día y horas de entrada. " +
+            "No envía placas, colores, observaciones ni etiquetas de puesto. En el plan gratis Google puede usar lo que se envía " +
+            "para mejorar sus productos, así que no pongas datos personales en tus preguntas. La clave se guarda en la base de datos " +
+            "local sin cifrar. Más detalles en docs/PRIVACIDAD.md.",
+        style = MaterialTheme.typography.bodyMedium,
+    )
+    Text(if (saved) "Estado: activado" else "Estado: apagado", style = MaterialTheme.typography.labelLarge)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        OutlinedTextField(
+            key, { key = it }, label = { Text(if (saved) "Clave nueva (deja vacío para conservar)" else "Clave de la API") },
+            singleLine = true, visualTransformation = PasswordVisualTransformation(),
+        )
+        OutlinedTextField(model, { model = it }, label = { Text("Modelo") }, singleLine = true)
+        Button(onClick = {
+            if (key.isNotBlank()) ai.apiKey = key
+            ai.model = model.ifBlank { com.ejemplo.parkeasy.domain.ai.AiSettings.DEFAULT_MODEL }
+            key = ""
+            saved = ai.enabled
+        }) { Text("Guardar") }
+        OutlinedButton(enabled = saved, onClick = { ai.apiKey = ""; saved = false }) { Text("Apagar y borrar clave") }
+    }
+}

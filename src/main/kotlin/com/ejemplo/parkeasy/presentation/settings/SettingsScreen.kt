@@ -44,6 +44,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinInject()) {
         SecuritySection(vm)
         BackupSection(vm)
         PrivacySection(vm)
+        AssistantSection()
         ShortcutsSection()
 
         Text("Datos", style = MaterialTheme.typography.titleLarge)

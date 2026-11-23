@@ -1,6 +1,7 @@
 package com.ejemplo.parkeasy.presentation.navigation
 
 import com.ejemplo.parkeasy.resources.Res
+import com.ejemplo.parkeasy.resources.nav_assistant
 import com.ejemplo.parkeasy.resources.nav_editor
 import com.ejemplo.parkeasy.resources.nav_floors
 import com.ejemplo.parkeasy.resources.nav_history
@@ -18,5 +19,6 @@ enum class Screen(val title: StringResource) {
     RECORDS(Res.string.nav_records),
     HISTORY(Res.string.nav_history),
     FLOORS(Res.string.nav_floors),
+    ASSISTANT(Res.string.nav_assistant),
     SETTINGS(Res.string.nav_settings),
 }
