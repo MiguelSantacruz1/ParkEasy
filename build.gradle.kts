@@ -61,6 +61,13 @@ compose.desktop {
             packageVersion = "1.0.0"
             // El runtime recortado del instalador necesita JDBC (SQLite) y nombres/zonas para java.sql y java.naming.
             modules("java.sql", "java.naming", "jdk.unsupported", "java.net.http")
+            windows {
+                // Accesos directos en el menú Inicio y el escritorio. El UUID es fijo para que una versión nueva reemplace a la instalada.
+                menu = true
+                menuGroup = "ParkEasy"
+                shortcut = true
+                upgradeUuid = "DC84B2C4-8E73-48C6-9C59-DA85A160338A"
+            }
         }
     }
 }
