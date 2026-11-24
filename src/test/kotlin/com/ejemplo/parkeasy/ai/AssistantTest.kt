@@ -208,6 +208,11 @@ class AssistantTest {
         assertEquals(listOf(1_000L, 2_000L), pauses)
     }
     @Test
+    fun `quita el formato Markdown de la respuesta`() {
+        val raw = "Cobró **109.500 COP**.\n## Detalle\n* Carros: 99.000\n- Motos: 10.500"
+        assertEquals("Cobró 109.500 COP.\nDetalle\n• Carros: 99.000\n• Motos: 10.500", com.ejemplo.parkeasy.domain.ai.AssistantService.plain(raw))
+    }
+    @Test
     fun `sin clave no sale ninguna consulta`() {
         val (s, seen) = server(200, "{}")
         try {
