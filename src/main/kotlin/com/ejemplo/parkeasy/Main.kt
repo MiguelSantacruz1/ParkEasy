@@ -7,6 +7,9 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.ejemplo.parkeasy.di.appModules
 import com.ejemplo.parkeasy.presentation.AppRoot
+import com.ejemplo.parkeasy.resources.Res
+import com.ejemplo.parkeasy.resources.app_logo
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.KoinApplication
 import java.awt.Dimension
 
@@ -14,6 +17,7 @@ fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "PARKEASY",
+        icon = painterResource(Res.drawable.app_logo),
         state = rememberWindowState(size = DpSize(1280.dp, 800.dp)),
     ) {
         window.minimumSize = Dimension(960, 640)

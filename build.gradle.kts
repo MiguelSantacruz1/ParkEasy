@@ -62,6 +62,7 @@ compose.desktop {
             // El runtime recortado del instalador necesita JDBC (SQLite) y nombres/zonas para java.sql y java.naming.
             modules("java.sql", "java.naming", "jdk.unsupported", "java.net.http")
             windows {
+                iconFile.set(project.file("packaging/icon.ico"))
                 // Accesos directos en el menú Inicio y el escritorio. El UUID es fijo para que una versión nueva reemplace a la instalada.
                 menu = true
                 menuGroup = "ParkEasy"
