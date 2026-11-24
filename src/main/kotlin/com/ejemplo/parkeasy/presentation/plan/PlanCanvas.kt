@@ -37,13 +37,14 @@ fun PlanCanvas(
     onSpotClick: (PlanItem) -> Unit = {},
 ) {
     val textMeasurer = rememberTextMeasurer()
+    val neon = com.ejemplo.parkeasy.presentation.theme.LocalNeon.current
     val current = rememberUpdatedState(state)
 
     Canvas(
         modifier = modifier
             .fillMaxSize()
             .clipToBounds()
-            .background(Color(0xFFE9EBEF))
+            .background(if (neon) Color(0xFF05070F) else Color(0xFFE9EBEF))
             .onSizeChanged { vm.setViewSize(it.width.toDouble(), it.height.toDouble()) }
             .focusRequester(focus)
             .focusable()
@@ -111,6 +112,6 @@ fun PlanCanvas(
                 }
             },
     ) {
-        drawPlan(textMeasurer, state, operation)
+        drawPlan(textMeasurer, state, operation, neon)
     }
 }

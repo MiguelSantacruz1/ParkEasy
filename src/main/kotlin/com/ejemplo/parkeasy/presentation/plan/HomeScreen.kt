@@ -118,10 +118,11 @@ fun HomeScreen(
 
 @Composable
 private fun Legend() {
+    val neon = com.ejemplo.parkeasy.presentation.theme.LocalNeon.current
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("○ Libre", color = androidx.compose.ui.graphics.Color(0xFF2E7D32), style = MaterialTheme.typography.bodySmall)
-        Text("● Ocupado", color = androidx.compose.ui.graphics.Color(0xFFC62828), style = MaterialTheme.typography.bodySmall)
-        Text("⊘ Bloqueado", color = androidx.compose.ui.graphics.Color(0xFF6D4C41), style = MaterialTheme.typography.bodySmall)
+        Text("○ Libre", color = com.ejemplo.parkeasy.presentation.theme.StatusPalette.free(neon), style = MaterialTheme.typography.bodySmall)
+        Text("● Ocupado", color = com.ejemplo.parkeasy.presentation.theme.StatusPalette.occupied(neon), style = MaterialTheme.typography.bodySmall)
+        Text("⊘ Bloqueado", color = com.ejemplo.parkeasy.presentation.theme.StatusPalette.blocked(neon), style = MaterialTheme.typography.bodySmall)
         Text("Clic en un puesto: libre → entrada · ocupado → salida · bloqueado → desbloquear", style = MaterialTheme.typography.bodySmall)
     }
 }
