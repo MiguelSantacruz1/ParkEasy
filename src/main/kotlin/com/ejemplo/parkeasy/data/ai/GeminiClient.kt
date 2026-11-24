@@ -33,11 +33,13 @@ class GeminiClient(
     private val http: HttpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build(),
     private val attempts: Int = 3,
     private val pause: (Long) -> Unit = { Thread.sleep(it) },
-    private val fallbacks: List<String> = DEFAULT_FALLBACKS,
+    /** Modelos alternativos. Si es null se le piden a la API los que tiene disponibles esta clave. */
+    private val fallbacks: List<String>? = null,
 ) : AiClient {
 
     private companion object {
         val RETRYABLE = setOf(500, 502, 503, 504)
+        const val MAX_FALLBACKS = 6
     }
 
     override fun reply(system: String, history: List<ChatTurn>): String {
@@ -58,41 +60,105 @@ class GeminiClient(
             put("generationConfig", buildJsonObject { put("temperature", 0.3) })
         }
         // Si un modelo no existe (404) o está saturado (500, 502, 503, 504 tras reintentar con pausas), se prueba el siguiente.
-        val models = (listOf(model().trim()) + fallbacks).filter { it.isNotEmpty() }.distinct()
-        var last: AiException? = null
-        for ((i, m) in models.withIndex()) {
-            val request = HttpRequest.newBuilder(URI.create("$baseUrl/models/$m:generateContent"))
-                .timeout(Duration.ofSeconds(60))
-                .header("Content-Type", "application/json")
-                .header("x-goog-api-key", key)
-                .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
-                .build()
-            val maxAttempts = if (i == 0) attempts else minOf(attempts, 2)
-            var attempt = 1
-            while (true) {
-                val response = try {
-                    http.send(request, HttpResponse.BodyHandlers.ofString(Charsets.UTF_8))
-                } catch (e: IOException) {
-                    throw AiException("No hay conexión con Gemini. Revisa el internet e intenta de nuevo.")
-                } catch (e: InterruptedException) {
-                    Thread.currentThread().interrupt()
-                    throw AiException("La consulta se interrumpió")
-                }
-                val status = response.statusCode()
-                if (status in RETRYABLE && attempt < maxAttempts) {
-                    pause(1_000L * attempt)
-                    attempt++
-                    continue
-                }
-                if (status == 404 || status in RETRYABLE) {
-                    last = AiException(errorMessage(status, response.body()))
-                    break
-                }
-                return parse(status, response.body())
+        // Los alternativos salen de la lista que Google dice que esta clave puede usar; si no se puede pedir, de una lista fija.
+        val tried = mutableListOf<Pair<String, Int>>()
+        var models = listOf(model().trim()).filter { it.isNotEmpty() }
+        var i = 0
+        var expanded = false
+        while (i < models.size) {
+            val m = models[i]
+            val status = callModel(m, key, body.toString(), if (i == 0) attempts else minOf(attempts, 2)) { return it }
+            tried += m to status
+            i++
+            if (i == models.size && !expanded) {
+                expanded = true
+                val extra = fallbacks ?: (discoverModels(key).ifEmpty { DEFAULT_FALLBACKS })
+                models = (models + extra).distinct()
             }
         }
-        val tried = models.joinToString(", ")
-        throw AiException("${last?.message ?: "Gemini no respondió"} Modelos probados: $tried.")
+        throw AiException(summary(tried))
+    }
+
+    /** Llama a [m] con reintentos. Si responde bien, entrega el texto a [done]; si no, devuelve el código HTTP (404 o 5xx). */
+    private inline fun callModel(m: String, key: String, body: String, maxAttempts: Int, done: (String) -> Nothing): Int {
+        val request = HttpRequest.newBuilder(URI.create("$baseUrl/models/$m:generateContent"))
+            .timeout(Duration.ofSeconds(60))
+            .header("Content-Type", "application/json")
+            .header("x-goog-api-key", key)
+            .POST(HttpRequest.BodyPublishers.ofString(body))
+            .build()
+        var attempt = 1
+        while (true) {
+            val response = send(request)
+            val status = response.statusCode()
+            if (status in RETRYABLE && attempt < maxAttempts) {
+                pause(1_000L * attempt)
+                attempt++
+                continue
+            }
+            if (status == 404 || status in RETRYABLE) {
+                lastDetail = detailOf(response.body())
+                return status
+            }
+            done(parse(status, response.body()))
+        }
+    }
+
+    private var lastDetail: String? = null
+
+    private fun detailOf(body: String): String? = runCatching {
+        Json.parseToJsonElement(body).jsonObject["error"]?.jsonObject?.get("message")?.jsonPrimitive?.contentOrNull
+    }.getOrNull()
+
+    private fun send(request: HttpRequest): HttpResponse<String> = try {
+        http.send(request, HttpResponse.BodyHandlers.ofString(Charsets.UTF_8))
+    } catch (e: IOException) {
+        throw AiException("No hay conexión con Gemini. Revisa el internet e intenta de nuevo.")
+    } catch (e: InterruptedException) {
+        Thread.currentThread().interrupt()
+        throw AiException("La consulta se interrumpió")
+    }
+
+    private fun summary(tried: List<Pair<String, Int>>): String {
+        val head = if (tried.any { it.second in RETRYABLE }) {
+            "Gemini está saturado en este momento. Intenta de nuevo en unos minutos."
+        } else {
+            "Ningún modelo de Gemini respondió. Revisa el nombre en Ajustes."
+        }
+        val google = lastDetail?.let { " Google dice: $it" }.orEmpty()
+        return head + " Resultado por modelo: " + tried.joinToString(", ") { (m, s) -> "$m → $s" } + "." + google
+    }
+
+    /** Modelos de texto que esta clave puede usar, los más adecuados primero. Vacío si no se pudo consultar. */
+    internal fun discoverModels(key: String): List<String> = try {
+        val request = HttpRequest.newBuilder(URI.create("$baseUrl/models?pageSize=200"))
+            .timeout(Duration.ofSeconds(15)).header("x-goog-api-key", key).GET().build()
+        val response = http.send(request, HttpResponse.BodyHandlers.ofString(Charsets.UTF_8))
+        if (response.statusCode() != 200) emptyList() else rankModels(response.body())
+    } catch (e: Exception) {
+        if (e is InterruptedException) Thread.currentThread().interrupt()
+        emptyList()
+    }
+
+    internal fun rankModels(json: String): List<String> {
+        val skip = listOf("tts", "image", "embedding", "live", "audio", "robotics", "computer", "aqa", "learnlm", "gemma")
+        val names = Json.parseToJsonElement(json).jsonObject["models"]?.jsonArray.orEmpty().mapNotNull { m ->
+            val o = m.jsonObject
+            val name = o["name"]?.jsonPrimitive?.contentOrNull?.removePrefix("models/") ?: return@mapNotNull null
+            val ok = o["supportedGenerationMethods"]?.jsonArray?.any { it.jsonPrimitive.contentOrNull == "generateContent" } == true
+            name.takeIf { ok && it.startsWith("gemini-") && skip.none { s -> s in it } }
+        }
+        fun rank(n: String): Int {
+            val unstable = if ("preview" in n || "exp" in n) 10 else 0
+            val kind = when {
+                "flash-lite" in n -> 1
+                "flash" in n -> 0
+                "pro" in n -> 2
+                else -> 3
+            }
+            return unstable + kind
+        }
+        return names.sortedWith(compareBy({ rank(it) }, { it })).take(MAX_FALLBACKS)
     }
     private fun parts(text: String): JsonArray = buildJsonArray { add(buildJsonObject { put("text", text) }) }
 
