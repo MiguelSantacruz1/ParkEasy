@@ -30,7 +30,7 @@ class GeminiClient(
     private val apiKey: () -> String,
     private val model: () -> String,
     private val baseUrl: String = "https://generativelanguage.googleapis.com/v1beta",
-    private val http: HttpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build(),
+    private val http: HttpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).connectTimeout(Duration.ofSeconds(10)).build(),
     private val attempts: Int = 3,
     private val pause: (Long) -> Unit = { Thread.sleep(it) },
     /** Modelos alternativos. Si es null se le piden a la API los que tiene disponibles esta clave. */
@@ -110,15 +110,29 @@ class GeminiClient(
         Json.parseToJsonElement(body).jsonObject["error"]?.jsonObject?.get("message")?.jsonPrimitive?.contentOrNull
     }.getOrNull()
 
-    private fun send(request: HttpRequest): HttpResponse<String> = try {
-        http.send(request, HttpResponse.BodyHandlers.ofString(Charsets.UTF_8))
-    } catch (e: IOException) {
-        throw AiException("No hay conexión con Gemini. Revisa el internet e intenta de nuevo.")
-    } catch (e: InterruptedException) {
-        Thread.currentThread().interrupt()
-        throw AiException("La consulta se interrumpió")
+    /** Envía la solicitud; ante fallos de conexión reintenta (hasta [attempts] veces) y, si persisten, dice la causa. */
+    private fun send(request: HttpRequest): HttpResponse<String> {
+        var attempt = 1
+        while (true) {
+            try {
+                return http.send(request, HttpResponse.BodyHandlers.ofString(Charsets.UTF_8))
+            } catch (e: IOException) {
+                if (attempt < attempts) {
+                    pause(1_000L * attempt)
+                    attempt++
+                    continue
+                }
+                val cause = generateSequence<Throwable>(e) { it.cause }.last()
+                throw AiException(
+                    "No hay conexión con Gemini (${cause.javaClass.simpleName}: ${cause.message ?: "sin detalle"}). " +
+                        "Revisa el internet, el antivirus o el proxy e intenta de nuevo.",
+                )
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                throw AiException("La consulta se interrumpió")
+            }
+        }
     }
-
     private fun summary(tried: List<Pair<String, Int>>): String {
         val head = if (tried.any { it.second in RETRYABLE }) {
             "Gemini está saturado en este momento. Intenta de nuevo en unos minutos."
