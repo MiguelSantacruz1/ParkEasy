@@ -115,7 +115,7 @@ class SampleData(
     private fun demoFloorItems(prefix: String, title: String, rampUp: Boolean, connects: Long): List<PlanItem> {
         val items = mutableListOf<PlanItem>()
         fun add(type: ItemType, geometry: com.ejemplo.parkeasy.plan.model.Geometry, label: String = "", stroke: Double = 0.0, extra: (PlanItem) -> PlanItem = { it }) {
-            items += extra(PlanItem("demo-${items.size}", type, geometry, label = label, strokeWidth = stroke))
+            items += extra(PlanItem("demo-$prefix-${items.size}", type, geometry, label = label, strokeWidth = stroke))
         }
         add(ItemType.COVERED_ZONE, Box(1.0, 1.5, 41.0, 9.5))
         add(ItemType.ROAD, PathGeometry(PathKind.POLYLINE, listOf(Pt(1.0, 14.0), Pt(52.0, 14.0), Pt(52.0, 30.0))), stroke = 6.0)

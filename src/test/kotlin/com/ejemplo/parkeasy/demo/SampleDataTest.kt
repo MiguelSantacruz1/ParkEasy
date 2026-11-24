@@ -23,6 +23,10 @@ class SampleDataTest {
         assertEquals(15, env.records.getOpen().size)
         assertTrue(env.records.getAll().all { it.plate.startsWith("TST") && it.notes == SampleData.TEST_DATA })
         assertEquals(2, env.spots.getAll().count { it.blocked })
+        // Cada piso también guarda sus vías, rampa, columnas, entrada y salida (no solo los puestos).
+        env.floors.getAll().forEach { f ->
+            assertEquals(11, env.planElements.getByFloor(f.id).size, "elementos del plano de ${f.name}")
+        }
     }
 
     @Test
