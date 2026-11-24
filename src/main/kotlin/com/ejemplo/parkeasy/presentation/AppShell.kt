@@ -22,6 +22,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.layout.size
+import com.ejemplo.parkeasy.presentation.theme.neonGlow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.focusable
@@ -49,6 +52,7 @@ import com.ejemplo.parkeasy.presentation.records.RecordsViewModel
 import com.ejemplo.parkeasy.presentation.settings.SettingsScreen
 import com.ejemplo.parkeasy.presentation.spots.SpotsScreen
 import com.ejemplo.parkeasy.resources.Res
+import com.ejemplo.parkeasy.resources.app_logo
 import com.ejemplo.parkeasy.resources.screen_coming_soon
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -75,7 +79,7 @@ fun AppShell(
         messages.dismiss(m.id)
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbar) }) { padding ->
+    Scaffold(snackbarHost = { SnackbarHost(snackbar) }, containerColor = androidx.compose.ui.graphics.Color.Transparent) { padding ->
         Row(
             modifier = Modifier.fillMaxSize().padding(padding).focusRequester(focus).focusable().onPreviewKeyEvent { e ->
                 if (e.type != KeyEventType.KeyDown || !e.isCtrlPressed || dialog != null) return@onPreviewKeyEvent false
@@ -92,13 +96,50 @@ fun AppShell(
                 true
             },
         ) {
-            NavigationRail {
+            val neon = com.ejemplo.parkeasy.presentation.theme.LocalNeon.current
+            val scheme = MaterialTheme.colorScheme
+            NavigationRail(
+                modifier = Modifier.drawBehind {
+                    if (neon) {
+                        val x = size.width - 1f
+                        for ((w, a) in listOf(7f to 0.06f, 4f to 0.12f, 1.5f to 0.55f)) {
+                            drawLine(scheme.primary.copy(alpha = a), androidx.compose.ui.geometry.Offset(x, 0f), androidx.compose.ui.geometry.Offset(x, size.height), strokeWidth = w)
+                        }
+                    }
+                },
+                containerColor = scheme.surface.copy(alpha = if (neon) 0.72f else 1f),
+                header = {
+                    androidx.compose.foundation.Image(
+                        painter = org.jetbrains.compose.resources.painterResource(Res.drawable.app_logo),
+                        contentDescription = "PARKEASY",
+                        modifier = Modifier.padding(top = 12.dp, bottom = 8.dp).size(46.dp).then(
+                            if (neon) Modifier.neonGlow(scheme.primary) else Modifier,
+                        ),
+                    )
+                },
+            ) {
                 Screen.entries.forEach { screen ->
+                    val selected = screen == current
                     NavigationRailItem(
-                        selected = screen == current,
+                        selected = selected,
                         onClick = { navigator.navigateTo(screen) },
-                        icon = { com.ejemplo.parkeasy.presentation.navigation.ScreenIcon(screen) },
-                        label = { Text(stringResource(screen.title)) },
+                        icon = {
+                            Box(
+                                if (selected && neon) {
+                                    Modifier.neonGlow(scheme.primary, radius = 9.dp, corner = 12.dp, strength = 0.9f)
+                                } else {
+                                    Modifier
+                                },
+                            ) { com.ejemplo.parkeasy.presentation.navigation.ScreenIcon(screen) }
+                        },
+                        label = { Text(stringResource(screen.title), style = MaterialTheme.typography.labelMedium) },
+                        colors = androidx.compose.material3.NavigationRailItemDefaults.colors(
+                            selectedIconColor = scheme.primary,
+                            selectedTextColor = scheme.primary,
+                            indicatorColor = scheme.primary.copy(alpha = if (neon) 0.16f else 0.20f),
+                            unselectedIconColor = scheme.onSurfaceVariant,
+                            unselectedTextColor = scheme.onSurfaceVariant,
+                        ),
                     )
                 }
             }

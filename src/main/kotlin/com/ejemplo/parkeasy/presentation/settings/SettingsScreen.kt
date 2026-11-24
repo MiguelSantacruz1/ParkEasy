@@ -60,7 +60,7 @@ private fun TariffCard(tariff: Tariff, onSave: (Tariff) -> Unit) {
     val parsed = Triple(first.toLongOrNull(), extra.toLongOrNull(), grace.toIntOrNull())
     val valid = parsed.first != null && parsed.second != null && parsed.third != null
 
-    Card(Modifier.fillMaxWidth()) {
+    com.ejemplo.parkeasy.presentation.theme.NeonCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(Formatters.vehicle(tariff.vehicleType), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {

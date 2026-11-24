@@ -34,6 +34,7 @@ import com.ejemplo.parkeasy.domain.service.FloorService
 import com.ejemplo.parkeasy.domain.service.SpotService
 import com.ejemplo.parkeasy.domain.service.ThemeMode
 import com.ejemplo.parkeasy.presentation.theme.ParkEasyTheme
+import com.ejemplo.parkeasy.presentation.theme.backdrop
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,7 +50,11 @@ fun AppRoot(settings: AppSettings = koinInject()) {
         ThemeMode.DARK -> true
     }
     ParkEasyTheme(darkTheme = dark) {
-        Surface(Modifier.fillMaxSize()) {
+        Surface(
+            Modifier.fillMaxSize().backdrop(MaterialTheme.colorScheme.background, com.ejemplo.parkeasy.presentation.theme.LocalNeon.current),
+            color = androidx.compose.ui.graphics.Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+        ) {
             var unlocked by remember { mutableStateOf(!settings.hasPin) }
             val profile = remember { com.ejemplo.parkeasy.data.db.AppProfile.current() }
             var onboarded by remember { mutableStateOf(settings.onboardingDone) }

@@ -76,10 +76,11 @@ fun ConfirmDialog(
 /** Estado con texto y símbolo, para no depender solo del color. */
 @Composable
 fun StatusBadge(status: SpotStatus) {
+    val neon = com.ejemplo.parkeasy.presentation.theme.LocalNeon.current
     val (symbol, color) = when (status) {
-        SpotStatus.FREE -> "○" to Color(0xFF2E7D32)
-        SpotStatus.OCCUPIED -> "●" to Color(0xFFC62828)
-        SpotStatus.BLOCKED -> "⊘" to Color(0xFF6D4C41)
+        SpotStatus.FREE -> "○" to com.ejemplo.parkeasy.presentation.theme.StatusPalette.free(neon)
+        SpotStatus.OCCUPIED -> "●" to com.ejemplo.parkeasy.presentation.theme.StatusPalette.occupied(neon)
+        SpotStatus.BLOCKED -> "⊘" to com.ejemplo.parkeasy.presentation.theme.StatusPalette.blocked(neon)
     }
     Surface(shape = RoundedCornerShape(50), color = color.copy(alpha = 0.12f)) {
         Text(
@@ -94,7 +95,7 @@ fun StatusBadge(status: SpotStatus) {
 /** Total, libres, ocupados, bloqueados y porcentaje de ocupación. */
 @Composable
 fun SummaryRow(title: String, summary: OccupancySummary, modifier: Modifier = Modifier) {
-    Card(modifier = modifier) {
+    com.ejemplo.parkeasy.presentation.theme.NeonCard(modifier = modifier) {
         Row(
             Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(20.dp),

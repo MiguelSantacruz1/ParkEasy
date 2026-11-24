@@ -98,7 +98,7 @@ private fun RecordsTab(vm: HistoryViewModel, state: HistoryUiState, zone: ZoneId
         state.rows.isEmpty() -> CenteredNote("Ningún registro coincide con los filtros.")
         else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             items(state.rows, key = { it.id }) { r ->
-                Card(Modifier.fillMaxWidth()) {
+                com.ejemplo.parkeasy.presentation.theme.NeonCard(Modifier.fillMaxWidth()) {
                     Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(r.plate, fontWeight = FontWeight.Bold, modifier = Modifier.width(90.dp))
                         Text("${Formatters.vehicle(r.vehicleType)} ${r.color}", modifier = Modifier.width(150.dp))
@@ -125,7 +125,7 @@ private fun ChangesTab(state: HistoryUiState, zone: ZoneId) {
     Text("Últimos ${state.changes.size} cambios", style = MaterialTheme.typography.titleSmall)
     LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         items(state.changes, key = { it.id }) { e ->
-            Card(Modifier.fillMaxWidth()) {
+            com.ejemplo.parkeasy.presentation.theme.NeonCard(Modifier.fillMaxWidth()) {
                 Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Text(Formatters.dateTime(e.timestamp), modifier = Modifier.width(160.dp))
                     Text(e.action.name, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(170.dp))

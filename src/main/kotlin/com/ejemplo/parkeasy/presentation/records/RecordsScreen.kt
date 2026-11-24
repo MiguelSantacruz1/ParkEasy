@@ -49,7 +49,7 @@ fun RecordsScreen(vm: RecordsViewModel = koinInject()) {
             state.inside.isEmpty() -> CenteredNote("Ninguna placa dentro coincide con «${state.query}».")
             else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(state.inside, key = { it.id }) { r ->
-                    Card(Modifier.fillMaxWidth()) {
+                    com.ejemplo.parkeasy.presentation.theme.NeonCard(Modifier.fillMaxWidth()) {
                         Row(
                             Modifier.padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically,

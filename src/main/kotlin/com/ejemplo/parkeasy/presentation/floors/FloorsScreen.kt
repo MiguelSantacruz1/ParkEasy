@@ -49,7 +49,7 @@ fun FloorsScreen(vm: FloorsViewModel = koinInject()) {
             state.rows.isEmpty() -> CenteredNote("Todavía no hay pisos. Agrega el primero para empezar.")
             else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(state.rows, key = { it.floor.id }) { row ->
-                    Card(Modifier.fillMaxWidth()) {
+                    com.ejemplo.parkeasy.presentation.theme.NeonCard(Modifier.fillMaxWidth()) {
                         Row(
                             Modifier.padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically,
