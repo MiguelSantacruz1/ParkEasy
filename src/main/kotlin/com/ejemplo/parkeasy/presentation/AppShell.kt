@@ -97,7 +97,7 @@ fun AppShell(
                     NavigationRailItem(
                         selected = screen == current,
                         onClick = { navigator.navigateTo(screen) },
-                        icon = { Text(stringResource(screen.title).take(1)) },
+                        icon = { com.ejemplo.parkeasy.presentation.navigation.ScreenIcon(screen) },
                         label = { Text(stringResource(screen.title)) },
                     )
                 }
