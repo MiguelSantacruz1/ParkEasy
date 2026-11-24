@@ -151,12 +151,54 @@ class AssistantTest {
         try {
             val c = GeminiClient({ "k" }, { "a" }, "http://127.0.0.1:${s.address.port}/v1beta", pause = {}, fallbacks = listOf("b"))
             val e = assertFailsWith<AiException> { c.reply("c", listOf(ChatTurn(true, "hola"))) }
-            assertTrue("a, b" in e.message!!, e.message)
+            assertTrue("a → 503, b → 503" in e.message!! && "saturado" in e.message!!, e.message)
         } finally { s.stop(0) }
     }
 
     @Test
-    fun `sin clave no sale ninguna consulta`() {        val (s, seen) = server(200, "{}")
+    fun `ordena los modelos que ofrece la API y descarta los que no sirven para texto`() {
+        val json = """{"models":[
+          {"name":"models/gemini-2.5-pro","supportedGenerationMethods":["generateContent"]},
+          {"name":"models/gemini-2.5-flash-lite","supportedGenerationMethods":["generateContent"]},
+          {"name":"models/gemini-3-flash-preview","supportedGenerationMethods":["generateContent"]},
+          {"name":"models/gemini-2.5-flash","supportedGenerationMethods":["generateContent"]},
+          {"name":"models/gemini-2.5-flash-image","supportedGenerationMethods":["generateContent"]},
+          {"name":"models/gemini-embedding-001","supportedGenerationMethods":["embedContent"]},
+          {"name":"models/gemini-2.5-flash-tts","supportedGenerationMethods":["generateContent"]},
+          {"name":"models/gemma-3-27b","supportedGenerationMethods":["generateContent"]}]}"""
+        val c = GeminiClient({ "k" }, { "m" }, "http://x")
+        assertEquals(listOf("gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro", "gemini-3-flash-preview"), c.rankModels(json))
+    }
+
+    @Test
+    fun `sin lista fija le pregunta a la API que modelos tiene la clave`() {
+        val used = mutableListOf<String>()
+        val s = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        s.createContext("/") { ex ->
+            ex.requestBody.readBytes()
+            val path = ex.requestURI.path
+            val (code, text) = if (path.endsWith("/models")) {
+                200 to """{"models":[{"name":"models/gemini-9-flash","supportedGenerationMethods":["generateContent"]}]}"""
+            } else {
+                val m = path.substringAfter("/models/").substringBefore(":")
+                used += m
+                if (m == "gemini-9-flash") 200 to """{"candidates":[{"content":{"parts":[{"text":"hola desde $m"}]}}]}"""
+                else 404 to """{"error":{"message":"nope"}}"""
+            }
+            val bytes = text.toByteArray()
+            ex.sendResponseHeaders(code, bytes.size.toLong())
+            ex.responseBody.use { it.write(bytes) }
+        }
+        s.start()
+        try {
+            val c = GeminiClient({ "k" }, { "no-existe" }, "http://127.0.0.1:${s.address.port}/v1beta", pause = {})
+            assertEquals("hola desde gemini-9-flash", c.reply("c", listOf(ChatTurn(true, "hola"))))
+            assertEquals(listOf("no-existe", "gemini-9-flash"), used)
+        } finally { s.stop(0) }
+    }
+    @Test
+    fun `sin clave no sale ninguna consulta`() {
+        val (s, seen) = server(200, "{}")
         try {
             assertFailsWith<AiException> { client(s, key = " ").reply("c", listOf(ChatTurn(true, "hola"))) }
             assertTrue(seen.isEmpty())
