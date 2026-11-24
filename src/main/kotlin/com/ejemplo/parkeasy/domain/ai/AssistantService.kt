@@ -45,13 +45,23 @@ class AssistantService(
     )
 
     /** [history] termina con la pregunta nueva del usuario. */
-    fun ask(history: List<ChatTurn>): String = client.reply(systemPrompt(), history.takeLast(MAX_TURNS))
+    fun ask(history: List<ChatTurn>): String = plain(client.reply(systemPrompt(), history.takeLast(MAX_TURNS)))
 
     companion object {
         const val MAX_TURNS = 10
+
+        /** La pantalla muestra texto plano: quita los asteriscos y almohadillas de Markdown y deja las viñetas como «•». */
+        fun plain(text: String): String = text
+            .replace("**", "").replace("__", "")
+            .lines().joinToString("\n") { line ->
+                line.replace(Regex("^\\s*#{1,6}\\s+"), "").replace(Regex("^(\\s*)[*-]\\s+"), "$1• ")
+            }
+            .trim()
         const val INSTRUCTIONS = "Eres el asistente de un administrador de parqueadero en Colombia. Responde en español, " +
             "breve y claro, usando solo los datos del resumen de abajo. Si el resumen no alcanza para responder, dilo " +
             "en vez de inventar. Los valores de dinero están en pesos colombianos (COP). No tienes placas ni datos de " +
-            "personas y no debes pedirlos. No des asesoría legal ni tributaria."
+            "personas y no debes pedirlos. No des asesoría legal ni tributaria. Escribe en texto plano, sin Markdown " +
+            "(nada de asteriscos ni almohadillas). Los «últimos N días» incluyen hoy y los N-1 días anteriores: di ese rango " +
+            "de fechas completo aunque en algunos días no haya movimiento."
     }
 }
