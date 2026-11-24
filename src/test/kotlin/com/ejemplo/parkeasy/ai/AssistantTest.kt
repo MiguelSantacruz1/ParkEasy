@@ -197,6 +197,17 @@ class AssistantTest {
         } finally { s.stop(0) }
     }
     @Test
+    fun `si no hay conexion reintenta y dice la causa real`() {
+        val (s, _) = server(200, "{}")
+        val port = s.address.port
+        s.stop(0)
+        val pauses = mutableListOf<Long>()
+        val c = GeminiClient({ "k" }, { "m" }, "http://127.0.0.1:$port/v1beta", pause = { pauses += it }, fallbacks = emptyList())
+        val e = assertFailsWith<AiException> { c.reply("c", listOf(ChatTurn(true, "hola"))) }
+        assertTrue("No hay conexión" in e.message!! && "Exception" in e.message!!, e.message)
+        assertEquals(listOf(1_000L, 2_000L), pauses)
+    }
+    @Test
     fun `sin clave no sale ninguna consulta`() {
         val (s, seen) = server(200, "{}")
         try {
